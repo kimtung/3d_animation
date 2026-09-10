@@ -1,4 +1,4 @@
-﻿// Polyfill browser globals needed by three/addons/exporters/GLTFExporter in node
+// Polyfill browser globals needed by three/addons/exporters/GLTFExporter in node
 class MockFileReader {
   readAsArrayBuffer(blob) {
     blob.arrayBuffer().then((buf) => {
@@ -40,7 +40,7 @@ rootBone.add(spineBone);
 
 const headBone = new THREE.Bone();
 headBone.name = "Head";
-headBone.position.set(0, 0.65, 0); // Neck base to head center
+headBone.position.set(0, 0.78, 0); // Clear neck hinge separating head from torso
 spineBone.add(headBone);
 
 const armLeft = new THREE.Bone();
@@ -109,19 +109,20 @@ const pelvisMesh = new THREE.Mesh(pelvisGeo, pantsMat);
 pelvisMesh.castShadow = true;
 spineBone.add(pelvisMesh);
 
-// --- 2. SEAMLESS NECK & COLLAR ---
-// Solid neck cylinder extending from inside chest right into head
-const neckGeo = new THREE.CylinderGeometry(0.15, 0.18, 0.26, 16);
-neckGeo.translate(0, 0.52, 0);
+// --- 2. DISTINCT VISIBLE NECK & POLO COLLAR ---
+// 1. Solid peach neck cylinder bridging spine top to head
+const neckGeo = new THREE.CylinderGeometry(0.14, 0.16, 0.28, 16);
+neckGeo.translate(0, 0.62, 0); // Visible neck column between torso Y=0.58 and head base Y=0.78
 const neckMesh = new THREE.Mesh(neckGeo, skinMat);
 neckMesh.castShadow = true;
 spineBone.add(neckMesh);
 
-// Polo Collar encircling neck at shoulder height
-const collarGeo = new THREE.TorusGeometry(0.20, 0.05, 8, 20);
+// 2. Stylish polo shirt collar resting around the base of the neck
+const collarGeo = new THREE.TorusGeometry(0.22, 0.055, 8, 24);
 collarGeo.rotateX(Math.PI / 2);
-collarGeo.translate(0, 0.50, 0);
+collarGeo.translate(0, 0.55, 0);
 const collarMesh = new THREE.Mesh(collarGeo, collarMat);
+collarMesh.castShadow = true;
 spineBone.add(collarMesh);
 
 // --- 3. FULL LEGS & SHOES (attached to leg bones, hanging down to ground Y=0) ---
