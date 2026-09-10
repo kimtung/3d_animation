@@ -1,6 +1,7 @@
 import { Viewport } from "@ui/Viewport.tsx";
 import { useCharacterStore } from "@store/characterStore.ts";
 import { useTimelineStore } from "@store/timelineStore.ts";
+import { STORIES } from "./stories/index.ts";
 import "./App.css";
 
 const CHARACTER_TABS = [
@@ -24,22 +25,61 @@ function App() {
     _actions,
   } = useCharacterStore();
 
-  const { currentTime, duration, isPlaying, _controls } = useTimelineStore();
+  const { currentStoryId, currentTime, duration, isPlaying, _controls } = useTimelineStore();
 
   const selectedChar = characters[selectedCharacterId];
   const stateClass = `status-${behaviorState.toLowerCase()}`;
+  const currentStory = STORIES.find((s) => s.id === currentStoryId) ?? STORIES[0];
 
   return (
     <div className="app-layout">
-      {/* Sidebar — Character Panel */}
+      {/* Sidebar — Character Panel & Story Selector */}
       <aside className="sidebar">
         <div className="sidebar-title">
-          <span>🎬 Gia đình 3D</span>
-          <span style={{ fontSize: "10px", color: "var(--text-dim)" }}>Prototype v0.2</span>
+          <span>🎬 Family Story Engine</span>
+          <span style={{ fontSize: "10px", color: "var(--accent)" }}>3D Cartoon</span>
+        </div>
+
+        {/* Story Selector Section */}
+        <div className="panel" style={{ border: "1px solid var(--accent)" }}>
+          <p className="panel-label">📖 Chọn Kịch Bản / Tập Phim</p>
+          <select
+            value={currentStoryId}
+            onChange={(e) => _controls?.loadStory(e.target.value)}
+            style={{
+              width: "100%",
+              background: "var(--bg-dark)",
+              color: "#fff",
+              border: "1px solid var(--border)",
+              borderRadius: "4px",
+              padding: "6px",
+              fontSize: "12px",
+              marginTop: "4px",
+              cursor: "pointer",
+            }}
+          >
+            {STORIES.map((s) => (
+              <option key={s.id} value={s.id}>
+                {s.title} ({s.duration}s)
+              </option>
+            ))}
+          </select>
+          <p
+            style={{
+              fontSize: "11px",
+              color: "var(--text-dim)",
+              marginTop: "6px",
+              lineHeight: "1.4",
+            }}
+          >
+            {currentStory.description}
+          </p>
         </div>
 
         {/* Character Selector */}
-        <div className="panel-label" style={{ marginTop: "4px" }}>Chọn nhân vật</div>
+        <div className="panel-label" style={{ marginTop: "4px" }}>
+          Diễn viên (Chọn để điều khiển)
+        </div>
         <div className="char-selector">
           {CHARACTER_TABS.map((tab) => (
             <button
@@ -97,15 +137,15 @@ function App() {
         <div className="viewport-container">
           <Viewport />
           <div className="viewport-label">
-            👨‍👩‍👧‍👦 Family Cast Active: Dad · Mom · Son · Daughter
+            🎭 {currentStory.title} · {isPlaying ? "Đang diễn xuất..." : "Sẵn sàng phát"}
           </div>
 
           {/* Dialogue balloon for active speaker */}
           {isTalking && (
             <div className="speech-bubble">
-              <span>💬</span>
+              <span style={{ fontSize: "18px" }}>💬</span>
               <span>
-                <strong>{speakerName}:</strong> "{currentDialogue}"
+                <strong style={{ color: "#fbbf24" }}>{speakerName}:</strong> "{currentDialogue}"
               </span>
             </div>
           )}
@@ -115,38 +155,42 @@ function App() {
         <div className="timeline-bar">
           <button
             style={{
-              background: isPlaying ? "#ef4444" : "#10b981",
+              background: isPlaying ? "#ef4444" : "#6366f1",
               border: "none",
-              borderRadius: "4px",
+              borderRadius: "6px",
               color: "#fff",
-              padding: "6px 14px",
+              padding: "7px 18px",
               cursor: "pointer",
               fontWeight: "bold",
-              fontSize: "12px",
+              fontSize: "13px",
+              display: "flex",
+              alignItems: "center",
+              gap: "6px",
+              boxShadow: "0 2px 8px rgba(99, 102, 241, 0.4)",
             }}
             onClick={() => (isPlaying ? _controls?.pause() : _controls?.play())}
           >
-            {isPlaying ? "⏸️ Pause" : "▶️ Play Tập Phim Gia Đình"}
+            {isPlaying ? "⏸️ Tạm dừng" : "▶️ Bắt đầu Câu Chuyện"}
           </button>
           <button
             style={{
               background: "#374151",
               border: "none",
-              borderRadius: "4px",
+              borderRadius: "6px",
               color: "#fff",
-              padding: "6px 10px",
+              padding: "7px 12px",
               cursor: "pointer",
               fontSize: "12px",
             }}
             onClick={() => _controls?.reset()}
           >
-            🔄 Reset
+            🔄 Xem lại từ đầu
           </button>
           <span className="timeline-label">Tiến trình</span>
           <input
             type="range"
             min={0}
-            max={duration || 25}
+            max={duration || 36}
             step={0.1}
             value={currentTime}
             onChange={(e) => _controls?.seek(parseFloat(e.target.value))}
@@ -160,10 +204,10 @@ function App() {
 
       {/* Action panel — bottom right */}
       <div className="action-panel">
-        <p className="panel-label">Hành động ({selectedChar?.name})</p>
+        <p className="panel-label">Thử nghiệm hành động tự do ({selectedChar?.name})</p>
         <div className="action-buttons">
           <button disabled={!_actions} onClick={() => _actions?.walkToSofa()}>
-            🚶 Đến Sofa
+            🚶 Đi đến Sofa
           </button>
           <button disabled={!_actions} onClick={() => _actions?.lookAtTV()}>
             👀 Nhìn TV
@@ -172,7 +216,7 @@ function App() {
             🚪 Nhìn Cửa ra vào
           </button>
           <button disabled={!_actions} onClick={() => _actions?.sit()}>
-            🪑 Ngồi Sofa
+            🪑 Ngồi xuống Sofa
           </button>
           <button disabled={!_actions} onClick={() => _actions?.stand()}>
             🧍 Đứng dậy
@@ -181,7 +225,7 @@ function App() {
             disabled={!_actions}
             onClick={() => {
               const dialogues: Record<string, string> = {
-                dad: "Anh chỉ xem một chút thôi!",
+                dad: "Anh chỉ xem một chút thôi mà!",
                 mom: "Em về từ lúc anh bật TV đấy nhé!",
                 son: "Bố ơi mẹ bắt quả tang rồi kìa haha!",
                 daughter: "Bố xem hoạt hình với con nha!",
@@ -189,10 +233,10 @@ function App() {
               _actions?.talk(dialogues[selectedCharacterId] || "Xin chào cả nhà!");
             }}
           >
-            🗣️ Nói thoại
+            🗣️ Nói thoại thử nghiệm
           </button>
           <button disabled={!_actions} onClick={() => _actions?.laugh()}>
-            😂 Cười đùa
+            😂 Cười đùa (Laugh)
           </button>
           <button disabled={!_actions} onClick={() => _actions?.idle()}>
             ⏸️ Đứng chờ (Idle)
@@ -203,7 +247,7 @@ function App() {
               disabled={!_actions}
               onClick={() => _actions?.setEmotion("happy")}
             >
-              😊 Vui
+              😊 Vui vẻ
             </button>
             <button
               style={{ flex: 1, padding: "4px", fontSize: "10px" }}

@@ -13,6 +13,7 @@ export class Timeline {
 
   // Actor & system registries
   private actors = new Map<string, ICharacterController>();
+  private initialActorTransforms = new Map<string, { position: THREE.Vector3; rotation: number }>();
   private cameraController: CameraController | null = null;
   private sceneManager: SceneManager | null = null;
 
@@ -32,6 +33,10 @@ export class Timeline {
 
   registerActor(id: string, controller: ICharacterController): void {
     this.actors.set(id, controller);
+    this.initialActorTransforms.set(id, {
+      position: controller.object3D.position.clone(),
+      rotation: controller.object3D.rotation.y,
+    });
   }
 
   setCameraController(controller: CameraController): void {
@@ -54,6 +59,24 @@ export class Timeline {
     this.currentTime = 0;
     this.isPlaying = false;
     this.dispatchedEvents.clear();
+
+    // Restore actors to their starting positions and states
+    for (const [id, transform] of this.initialActorTransforms) {
+      const actor = this.actors.get(id);
+      if (actor) {
+        actor.object3D.position.copy(transform.position);
+        actor.object3D.rotation.y = transform.rotation;
+        actor.idle();
+        actor.clearEmotion();
+      }
+    }
+
+    // Default camera reset
+    const dad = this.actors.get("dad");
+    if (this.cameraController && dad) {
+      this.cameraController.follow(dad.object3D);
+    }
+
     this.notifyTimeUpdate();
   }
 
@@ -117,15 +140,36 @@ export class Timeline {
   private async dispatchEvent(event: TimelineEvent): Promise<void> {
     // Camera event
     if (event.actor === "camera" && this.cameraController) {
-      if (event.action === "set_camera_mode" && event.params?.cameraMode) {
-        if (event.params.cameraMode === "static") {
+      if (event.action === "set_camera_mode") {
+        const shot = (event.params?.shotPreset as string) || "";
+        if (shot === "wide") {
+          this.cameraController.setStatic(
+            new THREE.Vector3(0, 3.2, 6.8),
+            new THREE.Vector3(0, 1.0, 0)
+          );
+        } else if (shot === "dad_couch") {
+          this.cameraController.setStatic(
+            new THREE.Vector3(1.0, 1.9, 3.2),
+            new THREE.Vector3(2.6, 0.9, 0.8)
+          );
+        } else if (shot === "mom_kids") {
+          this.cameraController.setStatic(
+            new THREE.Vector3(-0.6, 2.0, 3.0),
+            new THREE.Vector3(-1.8, 1.0, 0.2)
+          );
+        } else if (shot === "family_reaction") {
+          this.cameraController.setStatic(
+            new THREE.Vector3(-1.0, 2.3, 4.6),
+            new THREE.Vector3(0.6, 1.0, 0.4)
+          );
+        } else if (shot === "follow_dad" || event.params?.cameraMode === "follow") {
+          const dad = this.actors.get("dad");
+          if (dad) this.cameraController.follow(dad.object3D);
+        } else if (event.params?.cameraMode === "static") {
           this.cameraController.setStatic(
             new THREE.Vector3(-1.5, 2.5, 5.0),
             new THREE.Vector3(1.5, 1.0, 0)
           );
-        } else if (event.params.cameraMode === "follow") {
-          const dad = this.actors.get("dad");
-          if (dad) this.cameraController.follow(dad.object3D);
         }
       }
       return;

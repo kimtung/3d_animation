@@ -6,8 +6,7 @@ import { momDefinition } from "@characters/mom/mom.definition.ts";
 import { sonDefinition } from "@characters/son/son.definition.ts";
 import { daughterDefinition } from "@characters/daughter/daughter.definition.ts";
 import { livingRoomConfig } from "@scenes/living-room/livingRoom.ts";
-import livingRoomTimelineData from "@scenes/living-room/livingRoom.timeline.json";
-import type { StoryTimeline } from "@engine/timeline/TimelineEvent.ts";
+import { STORIES } from "../stories/index.ts";
 import { CameraController } from "@engine/camera/CameraController.ts";
 import { timelineEngine } from "@engine/timeline/Timeline.ts";
 import { useCharacterStore, type CharacterActionSet } from "@store/characterStore.ts";
@@ -30,10 +29,12 @@ export function Viewport() {
     const cameraController = new CameraController(sceneManager.camera);
     sceneManager.addUpdateCallback((delta) => cameraController.update(delta));
 
-    // 3. Timeline Engine Setup
+    // 3. Timeline Engine Setup with Default Story (Story 1)
     timelineEngine.setSceneManager(sceneManager);
     timelineEngine.setCameraController(cameraController);
-    timelineEngine.load(livingRoomTimelineData as unknown as StoryTimeline);
+
+    const initialStory = STORIES[0];
+    timelineEngine.load(initialStory.data);
     sceneManager.addUpdateCallback((delta) => timelineEngine.update(delta));
 
     // Sync timeline state to store
@@ -46,11 +47,25 @@ export function Viewport() {
     });
 
     useTimelineStore.setState({
+      currentStoryId: initialStory.id,
+      duration: timelineEngine.getDuration(),
       _controls: {
         play: () => timelineEngine.play(),
         pause: () => timelineEngine.pause(),
         seek: (t) => timelineEngine.seek(t),
         reset: () => timelineEngine.reset(),
+        loadStory: (storyId: string) => {
+          const story = STORIES.find((s) => s.id === storyId);
+          if (story) {
+            timelineEngine.load(story.data);
+            useTimelineStore.setState({
+              currentStoryId: story.id,
+              duration: timelineEngine.getDuration(),
+              currentTime: 0,
+              isPlaying: false,
+            });
+          }
+        },
       },
     });
 
@@ -102,7 +117,7 @@ export function Viewport() {
 
       loadedCharacters.push(dad, mom, son, daughter);
 
-      // Initial positions & rotations
+      // Initial positions & rotations matching family scene
       dad.object3D.position.set(-4.5, 0, -2.0);
       dad.object3D.rotation.y = 0.5;
 
@@ -117,10 +132,10 @@ export function Viewport() {
 
       // Register characters with SceneManager & Timeline
       const roster: Array<{ id: string; name: string; ctrl: ICharacterController }> = [
-        { id: "dad", name: "Dad", ctrl: dad },
-        { id: "mom", name: "Mom", ctrl: mom },
-        { id: "son", name: "Son", ctrl: son },
-        { id: "daughter", name: "Daughter", ctrl: daughter },
+        { id: "dad", name: "Bố", ctrl: dad },
+        { id: "mom", name: "Mẹ", ctrl: mom },
+        { id: "son", name: "Con trai", ctrl: son },
+        { id: "daughter", name: "Con gái", ctrl: daughter },
       ];
 
       for (const item of roster) {

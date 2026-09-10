@@ -1,0 +1,166 @@
+{
+  "id": "family_movie_night",
+  "title": "Tập 2: Cuối tuần xem phim gia đình",
+  "description": "Hai con tranh nhau xem siêu nhân và công chúa, Bố thể hiện bản lĩnh trọng tài tuyệt đỉnh!",
+  "duration": 30,
+  "events": [
+    {
+      "time": 0,
+      "actor": "camera",
+      "action": "set_camera_mode",
+      "params": { "shotPreset": "wide" }
+    },
+    {
+      "time": 0,
+      "actor": "dad",
+      "action": "idle"
+    },
+    {
+      "time": 0,
+      "actor": "mom",
+      "action": "idle"
+    },
+    {
+      "time": 0,
+      "actor": "son",
+      "action": "idle"
+    },
+    {
+      "time": 0,
+      "actor": "daughter",
+      "action": "idle"
+    },
+    {
+      "time": 1.5,
+      "actor": "camera",
+      "action": "set_camera_mode",
+      "params": { "shotPreset": "mom_kids" }
+    },
+    {
+      "time": 2.0,
+      "actor": "mom",
+      "action": "look_at",
+      "target": "dad"
+    },
+    {
+      "time": 2.5,
+      "actor": "mom",
+      "action": "say",
+      "params": {
+        "text": "Hôm nay cuối tuần rồi, cả nhà mình cùng xem phim hoạt hình nhé!"
+      }
+    },
+    {
+      "time": 5.5,
+      "actor": "son",
+      "action": "laugh"
+    },
+    {
+      "time": 6.2,
+      "actor": "son",
+      "action": "say",
+      "params": {
+        "text": "Hoan hô! Con muốn xem siêu nhân giải cứu ngân hà cơ!"
+      }
+    },
+    {
+      "time": 9.0,
+      "actor": "daughter",
+      "action": "laugh"
+    },
+    {
+      "time": 9.8,
+      "actor": "daughter",
+      "action": "say",
+      "params": {
+        "text": "Không chịu đâu, con muốn xem công chúa phép thuật cơ!"
+      }
+    },
+    {
+      "time": 12.5,
+      "actor": "camera",
+      "action": "set_camera_mode",
+      "params": { "shotPreset": "follow_dad" }
+    },
+    {
+      "time": 13.0,
+      "actor": "dad",
+      "action": "laugh"
+    },
+    {
+      "time": 13.6,
+      "actor": "dad",
+      "action": "say",
+      "params": {
+        "text": "Để Bố làm trọng tài! Bố có bộ phim vừa có siêu nhân lại vừa có công chúa luôn!"
+      }
+    },
+    {
+      "time": 16.5,
+      "actor": "dad",
+      "action": "walk_to",
+      "target": "sofa"
+    },
+    {
+      "time": 20.2,
+      "actor": "dad",
+      "action": "sit",
+      "target": "sofa"
+    },
+    {
+      "time": 21.5,
+      "actor": "camera",
+      "action": "set_camera_mode",
+      "params": { "shotPreset": "dad_couch" }
+    },
+    {
+      "time": 22.0,
+      "actor": "dad",
+      "action": "look_at",
+      "target": "tv"
+    },
+    {
+      "time": 22.8,
+      "actor": "son",
+      "action": "laugh"
+    },
+    {
+      "time": 23.4,
+      "actor": "son",
+      "action": "say",
+      "params": {
+        "text": "Oa! Bố đúng là số một thế giới luôn haha!"
+      }
+    },
+    {
+      "time": 25.5,
+      "actor": "camera",
+      "action": "set_camera_mode",
+      "params": { "shotPreset": "family_reaction" }
+    },
+    {
+      "time": 26.0,
+      "actor": "mom",
+      "action": "look_at",
+      "target": "sofa"
+    },
+    {
+      "time": 26.5,
+      "actor": "mom",
+      "action": "say",
+      "params": {
+        "text": "Bố bọn trẻ hôm nay tâm lý ghê, cả nhà mình cùng xem nào!"
+      }
+    },
+    {
+      "time": 28.5,
+      "actor": "daughter",
+      "action": "laugh"
+    },
+    {
+      "time": 29.0,
+      "actor": "dad",
+      "action": "laugh"
+    }
+  ]
+}
