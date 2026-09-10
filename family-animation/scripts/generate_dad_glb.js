@@ -1,4 +1,4 @@
-﻿// Polyfill browser globals needed by three/addons/exporters/GLTFExporter in node
+// Polyfill browser globals needed by three/addons/exporters/GLTFExporter in node
 class MockFileReader {
   readAsArrayBuffer(blob) {
     blob.arrayBuffer().then((buf) => {
@@ -36,7 +36,7 @@ rootBone.add(spineBone);
 
 const headBone = new THREE.Bone();
 headBone.name = "Head";
-headBone.position.set(0, 0.65, 0);
+headBone.position.set(0, 0.70, 0); // Natural neck hinge
 spineBone.add(headBone);
 
 const armLeft = new THREE.Bone();
@@ -154,11 +154,26 @@ const shoeRMesh = new THREE.Mesh(shoeGeo.clone(), shoeMat);
 legRight.add(legRMesh);
 legRight.add(shoeRMesh);
 
+// --- POLO SHIRT COLLAR & NECK (Connecting Torso to Head seamlessly) ---
+// 1. Cozy Polo Shirt Collar sitting at the top of the torso
+const collarGeo = new THREE.TorusGeometry(0.24, 0.055, 8, 20);
+collarGeo.rotateX(Math.PI / 2);
+const collarMat = new THREE.MeshStandardMaterial({ color: 0x1d4ed8, roughness: 0.5 });
+const collarMesh = new THREE.Mesh(collarGeo, collarMat);
+collarMesh.position.set(0, 0.70, 0);
+spineBone.add(collarMesh);
+
+// 2. Solid Peach Neck bridging Torso and Head
+const neckGeo = new THREE.CylinderGeometry(0.16, 0.18, 0.22, 16);
+const neckMesh = new THREE.Mesh(neckGeo, skinMat);
+neckMesh.position.set(0, -0.05, 0);
+headBone.add(neckMesh);
+
 // --- CARTOON HEAD & FACIAL FEATURES ---
-// Big stylized head (slightly pear/oval shaped)
+// Big stylized head (resting naturally above the neck)
 const headGeo = new THREE.SphereGeometry(0.32, 20, 20);
 headGeo.scale(1.0, 1.15, 1.05);
-headGeo.translate(0, 0.28, 0);
+headGeo.translate(0, 0.22, 0); // Lowered so it connects seamlessly with the neck
 const headMesh = new THREE.Mesh(headGeo, skinMat);
 headMesh.name = "DadHeadMesh";
 headMesh.castShadow = true;
@@ -168,7 +183,7 @@ headBone.add(headMesh);
 const hairMat = new THREE.MeshStandardMaterial({ color: 0x451a03, roughness: 0.9 });
 const hairGeo = new THREE.SphereGeometry(0.34, 16, 16);
 hairGeo.scale(1.04, 0.65, 1.06);
-hairGeo.translate(0, 0.50, -0.02);
+hairGeo.translate(0, 0.44, -0.02);
 const hairMesh = new THREE.Mesh(hairGeo, hairMat);
 headBone.add(hairMesh);
 
@@ -177,7 +192,7 @@ const noseGeo = new THREE.SphereGeometry(0.09, 14, 14);
 noseGeo.scale(1.1, 1.0, 1.2);
 const noseMat = new THREE.MeshStandardMaterial({ color: 0xf472b6, roughness: 0.6 }); // cute rosy nose
 const noseMesh = new THREE.Mesh(noseGeo, noseMat);
-noseMesh.position.set(0, 0.26, 0.34);
+noseMesh.position.set(0, 0.20, 0.34);
 headBone.add(noseMesh);
 
 // Big Cartoon Eyes (Whites + Pupils)
@@ -191,17 +206,17 @@ const pupilMat = new THREE.MeshStandardMaterial({ color: 0x18181b, roughness: 0.
 
 // Left Eye
 const eyeL = new THREE.Mesh(eyeWhiteGeo, eyeWhiteMat);
-eyeL.position.set(-0.11, 0.35, 0.30);
+eyeL.position.set(-0.11, 0.29, 0.30);
 const pupilL = new THREE.Mesh(pupilGeo, pupilMat);
-pupilL.position.set(-0.11, 0.35, 0.345);
+pupilL.position.set(-0.11, 0.29, 0.345);
 headBone.add(eyeL);
 headBone.add(pupilL);
 
 // Right Eye
 const eyeR = new THREE.Mesh(eyeWhiteGeo.clone(), eyeWhiteMat);
-eyeR.position.set(0.11, 0.35, 0.30);
+eyeR.position.set(0.11, 0.29, 0.30);
 const pupilR = new THREE.Mesh(pupilGeo.clone(), pupilMat);
-pupilR.position.set(0.11, 0.35, 0.345);
+pupilR.position.set(0.11, 0.29, 0.345);
 headBone.add(eyeR);
 headBone.add(pupilR);
 
@@ -209,12 +224,12 @@ headBone.add(pupilR);
 const browGeo = new THREE.BoxGeometry(0.13, 0.035, 0.04);
 const browMat = new THREE.MeshStandardMaterial({ color: 0x451a03 });
 const browL = new THREE.Mesh(browGeo, browMat);
-browL.position.set(-0.12, 0.46, 0.32);
+browL.position.set(-0.12, 0.40, 0.32);
 browL.rotation.z = -0.15;
 headBone.add(browL);
 
 const browR = new THREE.Mesh(browGeo.clone(), browMat);
-browR.position.set(0.12, 0.46, 0.32);
+browR.position.set(0.12, 0.40, 0.32);
 browR.rotation.z = 0.15;
 headBone.add(browR);
 
@@ -223,7 +238,7 @@ const stacheGeo = new THREE.CapsuleGeometry(0.05, 0.16, 8, 12);
 stacheGeo.rotateZ(Math.PI / 2);
 const stacheMat = new THREE.MeshStandardMaterial({ color: 0x451a03, roughness: 0.8 });
 const stacheMesh = new THREE.Mesh(stacheGeo, stacheMat);
-stacheMesh.position.set(0, 0.18, 0.34);
+stacheMesh.position.set(0, 0.12, 0.34);
 stacheMesh.scale.set(1.2, 0.7, 0.8);
 headBone.add(stacheMesh);
 
@@ -232,16 +247,16 @@ const glassRimGeo = new THREE.TorusGeometry(0.09, 0.016, 8, 20);
 const glassMat = new THREE.MeshStandardMaterial({ color: 0x09090b, roughness: 0.3 });
 
 const glassRimL = new THREE.Mesh(glassRimGeo, glassMat);
-glassRimL.position.set(-0.12, 0.35, 0.33);
+glassRimL.position.set(-0.12, 0.29, 0.33);
 headBone.add(glassRimL);
 
 const glassRimR = new THREE.Mesh(glassRimGeo, glassMat);
-glassRimR.position.set(0.12, 0.35, 0.33);
+glassRimR.position.set(0.12, 0.29, 0.33);
 headBone.add(glassRimR);
 
 const glassBridge = new THREE.BoxGeometry(0.08, 0.016, 0.02);
 const bridgeMesh = new THREE.Mesh(glassBridge, glassMat);
-bridgeMesh.position.set(0, 0.35, 0.34);
+bridgeMesh.position.set(0, 0.29, 0.34);
 headBone.add(bridgeMesh);
 
 // --- NATURAL ANIMATION CLIPS ---
