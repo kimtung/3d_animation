@@ -1,0 +1,1052 @@
+# AI 3D Family Animation Engine – Character Prototype
+
+## 1. Mục tiêu dự án
+
+Tôi muốn xây dựng một **AI 3D Story Animation Engine** để sau này tự động tạo các bộ phim hoạt hình 3D ngắn về một gia đình 4 người:
+
+* Bố
+* Mẹ
+* Con trai
+* Con gái
+
+Concept chính:
+
+> Một gia đình hạnh phúc, các tình huống hài hước đến từ những chuyện đời thường. Mẹ khá nghiêm khắc và nguyên tắc, bố vui tính nhưng hơi lười và thường tìm cách né việc. Con trai thường đứng về phía bố. Con gái thông minh, tinh nghịch và đôi khi khiến tình huống trở nên hài hước hơn.
+
+Ví dụ các episode trong tương lai:
+
+* Bố trốn rửa bát.
+* Bố lén ăn đồ ăn của con.
+* Bố mua một món đồ mà mẹ không cho mua.
+* Bố ngủ quên.
+* Hai bố con tìm cách xem TV nhưng bị mẹ phát hiện.
+* Con trai luôn bênh bố.
+* Con gái vô tình "tố cáo" bố.
+* Cả gia đình đi siêu thị.
+* Bố sửa một món đồ và làm nó hỏng hơn.
+* Mẹ giao việc nhà cho cả nhà.
+
+Mục tiêu dài hạn là:
+
+```text
+User Prompt
+    ↓
+AI Story Generator
+    ↓
+Comedy Engine
+    ↓
+Story Graph
+    ↓
+Scene Planner
+    ↓
+Character Behavior
+    ↓
+Timeline
+    ↓
+Camera
+    ↓
+3D Runtime
+    ↓
+Render
+    ↓
+Video
+```
+
+Tuy nhiên, **hiện tại KHÔNG xây toàn bộ hệ thống này**.
+
+Chúng ta bắt đầu bằng một **Character Prototype** thật tốt.
+
+---
+
+# 2. Mục tiêu của Character Prototype
+
+Prototype đầu tiên chỉ cần một nhân vật:
+
+## Dad
+
+Dad phải là một **3D character có thể lập trình để diễn**, không phải chỉ là một model 3D đứng trong scene.
+
+Prototype phải chứng minh được:
+
+1. Load được 3D character.
+2. Character có skeleton/rig.
+3. Character có animation.
+4. Character có state.
+5. Character có behavior.
+6. Character có thể di chuyển trong 3D scene.
+7. Character có thể nhìn về một object.
+8. Character có thể ngồi xuống.
+9. Character có emotion cơ bản.
+10. Character có thể nói một câu.
+11. Camera có thể theo dõi character.
+12. Có timeline để điều khiển sequence.
+13. Kiến trúc đủ sạch để sau này thêm Mom, Son, Daughter mà không phải viết lại engine.
+
+---
+
+# 3. Technology Stack
+
+Sử dụng:
+
+```text
+Frontend:
+React
+TypeScript
+Vite
+
+3D:
+Three.js
+
+Physics:
+Rapier nếu thực sự cần trong prototype
+
+3D model:
+GLB / GLTF
+
+Animation:
+Three.js AnimationMixer
+
+State:
+Có thể dùng Zustand hoặc custom state manager đơn giản
+
+Styling:
+CSS
+
+Build:
+Vite
+```
+
+Ở prototype này:
+
+* Chưa cần backend.
+* Chưa cần database.
+* Chưa cần LLM.
+* Chưa cần microservices.
+* Chưa cần authentication.
+* Chưa cần cloud.
+* Chưa cần AI-generated 3D model.
+* Chưa cần distributed rendering.
+
+Tất cả chạy local trong browser.
+
+---
+
+# 4. Nguyên tắc kiến trúc
+
+Đây là yêu cầu rất quan trọng.
+
+Không viết một đống code trong `App.tsx`.
+
+Phải tách rõ:
+
+```text
+Character
+Behavior
+State
+Animation
+Scene
+Timeline
+Camera
+UI
+```
+
+Kiến trúc hướng tới:
+
+```text
+Character API
+      ↓
+Behavior Manager
+      ↓
+State Machine
+      ↓
+Motion Controller
+      ↓
+Animation Controller
+      ↓
+3D Character
+```
+
+Character không được điều khiển bằng những đoạn code rải rác như:
+
+```text
+translateX()
+rotate()
+playAnimation()
+```
+
+khắp project.
+
+Thay vào đó cần có abstraction:
+
+```text
+dad.walkTo(target)
+dad.lookAt(target)
+dad.sit()
+dad.stand()
+dad.say(text)
+dad.setEmotion(emotion)
+```
+
+Sau này AI Story Engine sẽ sử dụng chính các API này.
+
+---
+
+# 5. Character Architecture
+
+Mỗi character phải có 3 lớp:
+
+```text
+Character
+│
+├── Identity
+├── State
+└── Behavior
+```
+
+## Identity
+
+Thông tin ổn định:
+
+```typescript
+{
+  id: "dad",
+  name: "Dad",
+  personality: [
+    "funny",
+    "kind",
+    "slightly_lazy",
+    "easy_going"
+  ]
+}
+```
+
+## State
+
+Thông tin thay đổi trong runtime:
+
+```typescript
+{
+  location: "living_room",
+  mood: "happy",
+  energy: 80,
+  action: "sitting"
+}
+```
+
+## Behavior
+
+Các hành động mà character có thể thực hiện:
+
+```text
+idle
+walk
+sit
+stand
+look_at
+talk
+laugh
+```
+
+---
+
+# 6. Dad Character Definition
+
+Tạo definition có thể mở rộng:
+
+```typescript
+interface CharacterDefinition {
+  id: string;
+  name: string;
+
+  asset: string;
+
+  personality: Personality;
+
+  capabilities: CharacterCapability[];
+
+  animations: AnimationDefinition[];
+
+  emotions: EmotionDefinition[];
+}
+```
+
+Dad prototype:
+
+```text
+id: dad
+
+personality:
+- funny
+- kind
+- relaxed
+- slightly lazy
+- loves children
+- avoids conflict with wife
+
+capabilities:
+- walk
+- sit
+- stand
+- look_at
+- talk
+- laugh
+```
+
+Không hard-code Dad vào engine.
+
+Engine phải có khả năng load một CharacterDefinition bất kỳ.
+
+---
+
+# 7. State Machine
+
+Implement một state machine đơn giản.
+
+Initial states:
+
+```text
+IDLE
+WALKING
+SITTING
+TALKING
+```
+
+Ví dụ:
+
+```text
+IDLE
+ ↓
+walkTo()
+ ↓
+WALKING
+ ↓
+arrived
+ ↓
+IDLE
+ ↓
+sit()
+ ↓
+SITTING
+```
+
+State machine phải độc lập với UI.
+
+---
+
+# 8. Behavior API
+
+Tạo một API giống:
+
+```typescript
+dad.idle();
+
+dad.walkTo(target);
+
+dad.lookAt(target);
+
+dad.sit();
+
+dad.stand();
+
+dad.say("Anh chỉ xem một chút thôi.");
+
+dad.setEmotion("happy");
+```
+
+Behavior phải có khả năng chạy bất đồng bộ hoặc trả về Promise để có thể sequence:
+
+```typescript
+await dad.walkTo(sofa);
+await dad.lookAt(tv);
+await dad.sit();
+await dad.say("Anh chỉ xem một chút thôi.");
+```
+
+Mục tiêu là sau này Story Engine có thể compile story thành các action như trên.
+
+---
+
+# 9. Motion Controller
+
+Tách movement khỏi animation.
+
+Ví dụ:
+
+```text
+walkTo(sofa)
+    ↓
+calculate direction
+    ↓
+rotate character
+    ↓
+move character
+    ↓
+play walk animation
+    ↓
+detect arrival
+    ↓
+stop movement
+    ↓
+play idle animation
+```
+
+Không hard-code tốc độ trong nhiều nơi.
+
+Có config:
+
+```typescript
+movementConfig = {
+  walkSpeed: ...,
+  rotationSpeed: ...
+}
+```
+
+---
+
+# 10. Animation Controller
+
+Tạo abstraction:
+
+```typescript
+animation.play("idle");
+animation.play("walk");
+animation.play("sit");
+animation.play("talk");
+```
+
+Có transition giữa animation.
+
+Ví dụ:
+
+```text
+idle
+ ↓
+walk
+
+walk
+ ↓
+idle
+
+idle
+ ↓
+sit
+```
+
+Sử dụng crossfade nếu phù hợp.
+
+Không để Behavior Manager trực tiếp thao tác quá nhiều với Three.js AnimationMixer.
+
+---
+
+# 11. Emotion System
+
+Prototype chỉ cần:
+
+```text
+neutral
+happy
+surprised
+confused
+embarrassed
+angry
+sleepy
+```
+
+Emotion có thể điều khiển:
+
+```text
+facial expression
++
+body gesture
++
+animation
+```
+
+Nếu facial rig quá phức tạp với asset hiện tại thì hãy tạo abstraction trước:
+
+```typescript
+dad.setEmotion("embarrassed");
+```
+
+và implement ở mức đơn giản.
+
+Ví dụ embarrassed:
+
+```text
+head slightly down
+body slightly back
+look away
+```
+
+Không cần làm facial animation hoàn hảo ở prototype.
+
+---
+
+# 12. Scene Prototype
+
+Chỉ tạo một environment:
+
+## Living Room
+
+Scene gồm:
+
+```text
+Floor
+Sofa
+Coffee Table
+TV
+Lamp
+Dad
+Camera
+Light
+```
+
+Scene graph:
+
+```text
+Scene
+│
+├── Environment
+│   ├── Floor
+│   ├── Sofa
+│   ├── CoffeeTable
+│   ├── TV
+│   └── Lamp
+│
+├── Characters
+│   └── Dad
+│
+├── Camera
+└── Lights
+```
+
+Không cần xây cả căn nhà.
+
+---
+
+# 13. Prototype Story
+
+Tạo một sequence khoảng 20–30 giây.
+
+Sequence:
+
+```text
+0s
+Dad đứng trong living room.
+
+1s
+Dad nhìn TV.
+
+2s
+Dad đi tới sofa.
+
+5s
+Dad dừng lại.
+
+5.5s
+Dad quay về phía sofa.
+
+6s
+Dad ngồi xuống.
+
+8s
+Dad nhìn TV.
+
+10s
+Dad nói:
+
+"Anh chỉ xem một chút thôi."
+
+13s
+Dad cười.
+
+15s
+Mom xuất hiện ở cửa phòng.
+
+17s
+Dad nhìn Mom.
+
+18s
+Dad chuyển emotion thành embarrassed.
+
+20s
+Dad nhìn sang hướng khác.
+```
+
+Ở prototype đầu tiên, Mom có thể chỉ là một placeholder đơn giản hoặc object dummy.
+
+Không cần xây Mom hoàn chỉnh.
+
+---
+
+# 14. Camera
+
+Tạo Camera Controller.
+
+Prototype cần:
+
+```text
+Static Camera
+Follow Camera
+Look At Target
+```
+
+Camera phải có API:
+
+```typescript
+camera.lookAt(dad);
+
+camera.follow(dad);
+```
+
+Sau này mở rộng:
+
+```text
+wide
+medium
+close_up
+two_shot
+tracking
+orbit
+comedy_zoom
+```
+
+Nhưng prototype chỉ cần:
+
+```text
+static
+follow
+lookAt
+```
+
+---
+
+# 15. Timeline Engine
+
+Không muốn toàn bộ sequence nằm trong một function khổng lồ.
+
+Tạo timeline abstraction.
+
+Ví dụ:
+
+```typescript
+timeline.add({
+  start: 0,
+  action: () => dad.idle()
+});
+
+timeline.add({
+  start: 1,
+  action: () => dad.lookAt(tv)
+});
+
+timeline.add({
+  start: 2,
+  action: () => dad.walkTo(sofa)
+});
+
+timeline.add({
+  start: 6,
+  action: () => dad.sit()
+});
+
+timeline.add({
+  start: 10,
+  action: () =>
+    dad.say("Anh chỉ xem một chút thôi.")
+});
+```
+
+Hoặc tốt hơn nếu có thể thiết kế thành declarative format:
+
+```json
+{
+  "timeline": [
+    {
+      "time": 0,
+      "actor": "dad",
+      "action": "idle"
+    },
+    {
+      "time": 1,
+      "actor": "dad",
+      "action": "look_at",
+      "target": "tv"
+    },
+    {
+      "time": 2,
+      "actor": "dad",
+      "action": "walk_to",
+      "target": "sofa"
+    },
+    {
+      "time": 6,
+      "actor": "dad",
+      "action": "sit"
+    }
+  ]
+}
+```
+
+Ưu tiên thiết kế để sau này AI có thể generate JSON tương tự.
+
+---
+
+# 16. UI
+
+Tạo một UI đơn giản:
+
+```text
+┌───────────────────────────────────────────────┐
+│ Family Animation Studio                      │
+├───────────────────┬───────────────────────────┤
+│ Character         │                           │
+│                   │       3D Viewport         │
+│ Dad               │                           │
+│                   │           Dad             │
+│ State: SITTING    │                           │
+│ Mood: Happy       │                           │
+│                   │                           │
+├───────────────────┴───────────────────────────┤
+│ Timeline                                      │
+│                                               │
+│ 0s     5s     10s     15s     20s     25s    │
+│ Dad ─────────────────────────────────────     │
+│                                               │
+├───────────────────────────────────────────────┤
+│ Actions                                       │
+│ [Walk] [Sit] [Stand] [Look] [Talk]            │
+└───────────────────────────────────────────────┘
+```
+
+Có thể click button để test behavior.
+
+---
+
+# 17. Character Panel
+
+Hiển thị:
+
+```text
+Character: Dad
+
+State:
+IDLE / WALKING / SITTING / TALKING
+
+Emotion:
+NEUTRAL / HAPPY / SURPRISED / EMBARRASSED
+
+Position:
+X
+Y
+Z
+
+Actions:
+
+[Walk To Sofa]
+[Look At TV]
+[Sit]
+[Stand]
+[Talk]
+```
+
+Mục tiêu của UI là **debug Character Runtime**, không phải làm UI đẹp.
+
+---
+
+# 18. Asset Strategy
+
+Không tự xây 3D model trong code.
+
+Tìm một humanoid cartoon 3D model có:
+
+* stylized appearance
+* rigged skeleton
+* idle animation
+* walking animation
+* sitting animation nếu có
+* talking animation nếu có
+* GLB/GLTF support
+
+Nếu chưa có asset phù hợp, hãy tạo một mock humanoid đơn giản để test engine.
+
+Quan trọng nhất hiện tại là **runtime architecture**, không phải chất lượng model.
+
+Không phụ thuộc vào một asset cụ thể trong architecture.
+
+---
+
+# 19. Folder Structure
+
+Đề xuất:
+
+```text
+family-animation/
+│
+├── public/
+│   └── assets/
+│       └── characters/
+│           └── dad/
+│               └── dad.glb
+│
+├── src/
+│   │
+│   ├── engine/
+│   │   ├── character/
+│   │   │   ├── Character.ts
+│   │   │   ├── CharacterState.ts
+│   │   │   ├── CharacterDefinition.ts
+│   │   │   └── CharacterManager.ts
+│   │   │
+│   │   ├── behavior/
+│   │   │   ├── BehaviorManager.ts
+│   │   │   ├── Behavior.ts
+│   │   │   └── StateMachine.ts
+│   │   │
+│   │   ├── animation/
+│   │   │   ├── AnimationController.ts
+│   │   │   └── AnimationDefinition.ts
+│   │   │
+│   │   ├── movement/
+│   │   │   └── MotionController.ts
+│   │   │
+│   │   ├── emotion/
+│   │   │   └── EmotionController.ts
+│   │   │
+│   │   ├── scene/
+│   │   │   ├── SceneManager.ts
+│   │   │   └── SceneGraph.ts
+│   │   │
+│   │   ├── timeline/
+│   │   │   ├── Timeline.ts
+│   │   │   └── TimelineEvent.ts
+│   │   │
+│   │   └── camera/
+│   │       └── CameraController.ts
+│   │
+│   ├── characters/
+│   │   └── dad/
+│   │       ├── dad.definition.ts
+│   │       └── dad.behaviors.ts
+│   │
+│   ├── scenes/
+│   │   └── living-room/
+│   │       └── livingRoom.ts
+│   │
+│   ├── ui/
+│   │   ├── Viewport.tsx
+│   │   ├── Timeline.tsx
+│   │   ├── CharacterPanel.tsx
+│   │   └── ActionPanel.tsx
+│   │
+│   └── App.tsx
+│
+├── package.json
+├── tsconfig.json
+└── vite.config.ts
+```
+
+Có thể điều chỉnh structure nếu có lý do kỹ thuật tốt hơn, nhưng phải giữ nguyên separation of concerns.
+
+---
+
+# 20. Future Architecture
+
+Thiết kế prototype sao cho sau này có thể mở rộng:
+
+```text
+                AI STORY AGENT
+                       ↓
+                COMEDY ENGINE
+                       ↓
+                 STORY GRAPH
+                       ↓
+                SCENE PLANNER
+                       ↓
+                ACTION GRAPH
+                       ↓
+              CHARACTER RUNTIME
+                       ↓
+              3D SCENE RUNTIME
+                       ↓
+                  RENDERER
+```
+
+Character Runtime hiện tại chính là module ở giữa:
+
+```text
+Action Graph
+     ↓
+Character Runtime
+     ↓
+3D Character
+```
+
+Sau này thêm:
+
+```text
+Mom
+Son
+Daughter
+```
+
+thì không được copy code của Dad.
+
+Ví dụ:
+
+```typescript
+const dad = characterFactory.create(dadDefinition);
+const mom = characterFactory.create(momDefinition);
+const son = characterFactory.create(sonDefinition);
+const daughter = characterFactory.create(daughterDefinition);
+```
+
+---
+
+# 21. Những thứ tuyệt đối chưa làm
+
+Trong prototype này KHÔNG làm:
+
+* AI story generation
+* LLM integration
+* AI 3D model generation
+* backend
+* database
+* authentication
+* cloud rendering
+* Kubernetes
+* microservices
+* multiplayer
+* sophisticated physics
+* realistic human simulation
+* advanced facial animation
+* full house
+* 100 behaviors
+* video generation pipeline
+
+Mục tiêu là **Character Runtime Vertical Slice**.
+
+---
+
+# 22. Definition of Done
+
+Prototype được coi là thành công khi tôi có thể mở browser và thấy:
+
+1. Living room 3D.
+2. Dad xuất hiện.
+3. Dad có idle animation.
+4. Dad có walk animation.
+5. Dad có sit animation.
+6. Dad có thể đi tới sofa.
+7. Dad tự quay về hướng sofa.
+8. Dad ngồi xuống.
+9. Dad nhìn TV.
+10. Dad thay đổi emotion.
+11. Dad nói một câu.
+12. Camera có thể follow Dad.
+13. Timeline điều khiển được sequence.
+14. UI hiển thị state hiện tại của Dad.
+15. Có thể trigger các behavior bằng button.
+16. Code được chia module rõ ràng.
+17. Không có logic quan trọng bị hard-code trong React UI.
+18. Có thể thêm Mom mà không cần sửa Character Engine.
+
+---
+
+# 23. Cách Gemini cần làm việc
+
+Đừng viết toàn bộ project trong một lần nếu điều đó làm code khó kiểm soát.
+
+Hãy thực hiện theo từng milestone:
+
+### Milestone 1
+
+Setup React + TypeScript + Vite + Three.js.
+
+### Milestone 2
+
+Load một GLB character.
+
+### Milestone 3
+
+Animation Controller.
+
+### Milestone 4
+
+Character State Machine.
+
+### Milestone 5
+
+Motion Controller + walkTo.
+
+### Milestone 6
+
+Living Room Scene.
+
+### Milestone 7
+
+Camera Controller.
+
+### Milestone 8
+
+Timeline Engine.
+
+### Milestone 9
+
+Emotion abstraction.
+
+### Milestone 10
+
+Dialogue/TTS abstraction.
+
+### Milestone 11
+
+UI debug panel.
+
+Sau mỗi milestone:
+
+* giải thích kiến trúc
+* hiển thị các file đã tạo/thay đổi
+* chạy kiểm tra
+* sửa lỗi
+* chỉ sau khi milestone hiện tại ổn mới chuyển sang milestone tiếp theo.
+
+Ưu tiên **clean architecture, extensibility và khả năng debug** hơn tốc độ viết code.
+
+---
+
+# 24. Điều quan trọng nhất
+
+Đây không phải project "làm một animation".
+
+Đây là bước đầu của:
+
+> **A programmable 3D character runtime for AI-generated family comedy stories.**
+
+Vì vậy hãy thiết kế API và abstraction sao cho sau này AI có thể sinh:
+
+```text
+Dad.walkTo(sofa)
+Dad.sit()
+Dad.lookAt(TV)
+Dad.say(...)
+Mom.enter()
+Dad.setEmotion("embarrassed")
+Son.defend(Dad)
+```
+
+và engine có thể thực thi chúng thành một scene 3D hoàn chỉnh.
+
+Trước khi code, hãy đưa ra:
+
+1. HLD ngắn gọn.
+2. Component architecture.
+3. Folder structure.
+4. Data model.
+5. Runtime flow.
+6. Các quyết định kỹ thuật quan trọng.
+7. Các dependency cần cài.
+
+Sau đó bắt đầu **Milestone 1**.
+
+Không nhảy sang AI Story Generation cho đến khi Character Runtime Prototype hoạt động ổn định.
