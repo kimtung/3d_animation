@@ -161,24 +161,24 @@ AI 3D STORY ANIMATION ENGINE
 
 ## M1.1 — Character Loader
 
-**Status:** ⬜ TODO
+**Status:** ✅ DONE
 
 **Goal:** Load GLB character vào scene đúng vị trí, scale, orientation.
 
 ### Tasks
 
-- [ ] Chuẩn bị asset:
-  - [ ] Option A: Download từ Mixamo (fbx → blender → export glb)
-  - [ ] Option B: Mock humanoid (BoxGeometry + SphereGeometry)
-  - [ ] Đặt vào `public/assets/characters/dad/dad.glb`
-- [ ] `characters/dad/dad.definition.ts` — `dadDefinition: CharacterDefinition`
-- [ ] `engine/character/CharacterFactory.ts`:
-  - [ ] `create(definition)` → Promise<ICharacterController>
-  - [ ] `GLTFLoader.load(asset)` — async load GLB
-  - [ ] Add model vào scene
-  - [ ] Fix scale/rotation nếu cần
-- [ ] Setup lighting cho character rõ mặt (DirectionalLight shadow)
-- [ ] Test: character hiển thị đúng tại (0, 0, 0)
+- [x] Chuẩn bị asset:
+  - [x] Option A: Download từ Mixamo (fbx → blender → export glb)
+  - [x] Option B: Mock humanoid (BoxGeometry + SphereGeometry)
+  - [x] Đặt vào `public/assets/characters/dad/dad.glb`
+- [x] `characters/dad/dad.definition.ts` — `dadDefinition: CharacterDefinition`
+- [x] `engine/character/CharacterFactory.ts`:
+  - [x] `create(definition)` → Promise<ICharacterController>
+  - [x] `GLTFLoader.load(asset)` — async load GLB
+  - [x] Add model vào scene
+  - [x] Fix scale/rotation nếu cần
+- [x] Setup lighting cho character rõ mặt (DirectionalLight shadow)
+- [x] Test: character hiển thị đúng tại (0, 0, 0)
 
 ### Definition of Done
 > ✅ Thấy character 3D đứng trong scene, có shadow, đúng scale và orientation.
@@ -187,24 +187,24 @@ AI 3D STORY ANIMATION ENGINE
 
 ## M1.2 — Animation Controller
 
-**Status:** ⬜ TODO
+**Status:** ✅ DONE
 
 **Goal:** Abstraction cho AnimationMixer. Play, crossFade, loop, one-shot.
 
 ### Tasks
 
-- [ ] `engine/animation/AnimationController.ts`:
-  - [ ] Constructor: `(mixer, clips[], definitions[])`
-  - [ ] `play(name, options?)` — play với loop config
-  - [ ] `crossFadeTo(name, duration?)` — smooth transition
-  - [ ] `stop(name?)`
-  - [ ] `isPlaying(name)` — boolean
-  - [ ] `update(delta)` — advance mixer
-- [ ] Map animation clips từ GLB vào `AnimationName` trong dad.definition.ts
-- [ ] Tích hợp vào `CharacterFactory.create()`
-- [ ] Test: idle loop
-- [ ] Test: crossFade idle ↔ walk (0.3s)
-- [ ] Test: one-shot sit (`clampWhenFinished: true`)
+- [x] `engine/animation/AnimationController.ts`:
+  - [x] Constructor: `(mixer, clips[], definitions[])`
+  - [x] `play(name, options?)` — play với loop config
+  - [x] `crossFadeTo(name, duration?)` — smooth transition
+  - [x] `stop(name?)`
+  - [x] `isPlaying(name)` — boolean
+  - [x] `update(delta)` — advance mixer
+- [x] Map animation clips từ GLB vào `AnimationName` trong dad.definition.ts
+- [x] Tích hợp vào `CharacterFactory.create()`
+- [x] Test: idle loop
+- [x] Test: crossFade idle ↔ walk (0.3s)
+- [x] Test: one-shot sit (`clampWhenFinished: true`)
 
 ### Transition Table
 
@@ -224,30 +224,30 @@ AI 3D STORY ANIMATION ENGINE
 
 ## M1.3 — State Machine
 
-**Status:** ⬜ TODO
+**Status:** ✅ DONE
 
 **Goal:** Validate state transitions. Emit events khi state change.
 
 ### Tasks
 
-- [ ] `engine/behavior/StateMachine.ts`:
-  - [ ] Define valid transitions map
-  - [ ] `transition(to)` — validate + execute, return boolean
-  - [ ] `canTransition(to)` — check only
-  - [ ] `getState()` — current `BehaviorState`
-  - [ ] `onStateChange(cb)` — event emitter
-- [ ] `engine/behavior/BehaviorManager.ts`:
-  - [ ] `execute(behavior)` → Promise<void>
-  - [ ] `interrupt()`
-  - [ ] `getCurrentBehavior()`
-- [ ] `engine/character/CharacterController.ts`:
-  - [ ] Implement `ICharacterController`
-  - [ ] `idle()` — trigger idle behavior
-  - [ ] `getState()` — return `CharacterRuntimeState`
-- [ ] Tích hợp StateMachine vào BehaviorManager
-- [ ] Test: IDLE → WALKING ✅
-- [ ] Test: WALKING → SITTING ❌ (phải idle trước)
-- [ ] Test: invalid transition bị reject, state không đổi
+- [x] `engine/behavior/StateMachine.ts`:
+  - [x] Define valid transitions map
+  - [x] `transition(to)` — validate + execute, return boolean
+  - [x] `canTransition(to)` — check only
+  - [x] `getState()` — current `BehaviorState`
+  - [x] `onStateChange(cb)` — event emitter
+- [x] `engine/behavior/BehaviorManager.ts`:
+  - [x] `execute(behavior)` → Promise<void>
+  - [x] `interrupt()`
+  - [x] `getCurrentBehavior()`
+- [x] `engine/character/CharacterController.ts`:
+  - [x] Implement `ICharacterController`
+  - [x] `idle()` — trigger idle behavior
+  - [x] `getState()` — return `CharacterRuntimeState`
+- [x] Tích hợp StateMachine vào BehaviorManager
+- [x] Test: IDLE → WALKING ✅
+- [x] Test: WALKING → SITTING ❌ (phải idle trước)
+- [x] Test: invalid transition bị reject, state không đổi
 
 ### State Transitions
 
@@ -268,30 +268,30 @@ any       → LOOKING   (lookAt — parallel, không thay đổi primary state)
 
 ## M1.4 — Motion Controller
 
-**Status:** ⬜ TODO
+**Status:** ✅ DONE
 
 **Goal:** `dad.walkTo(target)` → rotate đúng hướng → di chuyển → stop khi tới nơi.
 
 ### Tasks
 
-- [ ] `engine/movement/MotionController.ts`:
-  - [ ] Constructor: `(object3D, MovementConfig)`
-  - [ ] `moveTo(target: Vector3)` → Promise<void>
-  - [ ] `rotateTo(direction: Vector3)` → Promise<void>
-  - [ ] `stop()`
-  - [ ] `update(delta)` — lerp position, lerp rotation, arrival detection
-- [ ] `WalkToBehavior` trong `engine/behavior/Behavior.ts`:
-  - [ ] `StateMachine.transition('WALKING')`
-  - [ ] `AnimationController.crossFadeTo('walk')`
-  - [ ] `MotionController.moveTo(target)`
-  - [ ] On arrival: crossFade → idle, transition → IDLE
-  - [ ] Resolve Promise
-- [ ] `CharacterController.walkTo(target)` — delegate to BehaviorManager
-- [ ] `CharacterController.lookAt(target)` — LookAtBehavior (parallel)
-- [ ] `CharacterController.sit()` — SitBehavior
-- [ ] `CharacterController.stand()` — StandBehavior
-- [ ] Test: `await dad.walkTo(new Vector3(3, 0, 0))`
-- [ ] Test: sequence `await dad.walkTo(sofa); await dad.sit()`
+- [x] `engine/movement/MotionController.ts`:
+  - [x] Constructor: `(object3D, MovementConfig)`
+  - [x] `moveTo(target: Vector3)` → Promise<void>
+  - [x] `rotateTo(direction: Vector3)` → Promise<void>
+  - [x] `stop()`
+  - [x] `update(delta)` — lerp position, lerp rotation, arrival detection
+- [x] `WalkToBehavior` trong `engine/behavior/Behavior.ts`:
+  - [x] `StateMachine.transition('WALKING')`
+  - [x] `AnimationController.crossFadeTo('walk')`
+  - [x] `MotionController.moveTo(target)`
+  - [x] On arrival: crossFade → idle, transition → IDLE
+  - [x] Resolve Promise
+- [x] `CharacterController.walkTo(target)` — delegate to BehaviorManager
+- [x] `CharacterController.lookAt(target)` — LookAtBehavior (parallel)
+- [x] `CharacterController.sit()` — SitBehavior
+- [x] `CharacterController.stand()` — StandBehavior
+- [x] Test: `await dad.walkTo(new Vector3(3, 0, 0))`
+- [x] Test: sequence `await dad.walkTo(sofa); await dad.sit()`
 
 ### Definition of Done
 > ✅ `await dad.walkTo(target)` → rotate, walk anim, arrive, idle. Promise resolve đúng lúc.
@@ -300,26 +300,26 @@ any       → LOOKING   (lookAt — parallel, không thay đổi primary state)
 
 ## M1.5 — Emotion System
 
-**Status:** ⬜ TODO
+**Status:** ✅ DONE
 
 **Goal:** `dad.setEmotion('embarrassed')` → bone overrides applied smoothly.
 
 ### Tasks
 
-- [ ] `engine/emotion/EmotionController.ts`:
-  - [ ] Constructor: `(object3D, EmotionDefinition[])`
-  - [ ] `setEmotion(type)` — apply config
-  - [ ] `clearEmotion()` — reset to neutral
-  - [ ] `getCurrentEmotion()`
-  - [ ] `update(delta)` — lerp bone rotations toward target
-- [ ] Implementation priority:
+- [x] `engine/emotion/EmotionController.ts`:
+  - [x] Constructor: `(object3D, EmotionDefinition[])`
+  - [x] `setEmotion(type)` — apply config
+  - [x] `clearEmotion()` — reset to neutral
+  - [x] `getCurrentEmotion()`
+  - [x] `update(delta)` — lerp bone rotations toward target
+- [x] Implementation priority:
   1. Morph targets nếu asset có blend shapes
   2. Bone rotation overrides (head, spine, shoulder)
   3. Fallback: UI icon overlay
-- [ ] Update `dad.definition.ts` — thêm emotion bone configs
-- [ ] `CharacterController.setEmotion(type)` — delegate to EmotionController
-- [ ] Test: `neutral` → `happy` → `embarrassed` → `neutral`
-- [ ] Kiểm tra lerp smooth (không snap)
+- [x] Update `dad.definition.ts` — thêm emotion bone configs
+- [x] `CharacterController.setEmotion(type)` — delegate to EmotionController
+- [x] Test: `neutral` → `happy` → `embarrassed` → `neutral`
+- [x] Kiểm tra lerp smooth (không snap)
 
 ### Emotions
 
