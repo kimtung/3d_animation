@@ -1,27 +1,21 @@
-﻿// ============================================================
-// SceneManager — owns the Three.js render loop
-// React does NOT own the render loop; this class does.
-// ============================================================
-
-import * as THREE from 'three';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+﻿import * as THREE from "three";
+import type { SceneConfig, SceneObjectConfig, LightConfig } from "./SceneObject.ts";
+import { SceneGraph } from "./SceneGraph.ts";
 
 export class SceneManager {
   private renderer!: THREE.WebGLRenderer;
   private _scene!: THREE.Scene;
   private _camera!: THREE.PerspectiveCamera;
-  private controls!: OrbitControls;
+  private sceneGraph!: SceneGraph;
   private clock = new THREE.Clock();
   private animFrameId: number | null = null;
 
-  // Registered update callbacks (added by other engine modules)
+  // Registered update callbacks (timeline, camera, character, etc.)
   private updateCallbacks: Array<(delta: number) => void> = [];
-
-  // Named object registry for scene lookup
-  private objectRegistry = new Map<string, THREE.Object3D>();
 
   get scene(): THREE.Scene { return this._scene; }
   get camera(): THREE.PerspectiveCamera { return this._camera; }
+  get graph(): SceneGraph { return this.sceneGraph; }
 
   setup(canvas: HTMLCanvasElement): void {
     // Renderer
@@ -35,80 +29,129 @@ export class SceneManager {
     this.renderer.shadowMap.enabled = true;
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    this.renderer.toneMappingExposure = 1.2;
+    this.renderer.toneMappingExposure = 1.25;
 
-    // Scene
+    // Scene & Graph Hierarchy
     this._scene = new THREE.Scene();
-    this._scene.background = new THREE.Color('#1a1a2e');
-    this._scene.fog = new THREE.Fog('#1a1a2e', 15, 40);
+    this._scene.background = new THREE.Color("#111827");
+    this._scene.fog = new THREE.Fog("#111827", 12, 35);
+    this.sceneGraph = new SceneGraph(this._scene);
 
     // Camera
     this._camera = new THREE.PerspectiveCamera(
-      60,
+      55,
       canvas.clientWidth / canvas.clientHeight,
       0.1,
-      100,
+      100
     );
-    this._camera.position.set(0, 4, 8);
-    this._camera.lookAt(0, 1, 0);
-
-    // Orbit controls (dev only — will be replaced by CameraController in M2.2)
-    this.controls = new OrbitControls(this._camera, canvas);
-    this.controls.target.set(0, 1, 0);
-    this.controls.enableDamping = true;
-    this.controls.dampingFactor = 0.05;
-
-    // Default lighting
-    this._setupLights();
+    this._camera.position.set(0, 3.5, 6.5);
+    this._camera.lookAt(0, 1.0, 0);
 
     // Grid helper
-    const grid = new THREE.GridHelper(20, 20, '#333355', '#222244');
+    const grid = new THREE.GridHelper(16, 16, "#374151", "#1f2937");
     this._scene.add(grid);
 
     // Resize observer
     const resizeObserver = new ResizeObserver(() => this._onResize(canvas));
     resizeObserver.observe(canvas.parentElement ?? canvas);
-
-    console.log('[SceneManager] setup complete');
   }
 
-  private _setupLights(): void {
-    // Ambient — soft fill light
-    const ambient = new THREE.AmbientLight('#ffffff', 0.4);
-    this._scene.add(ambient);
+  loadEnvironment(config: SceneConfig): void {
+    // 1. Build lights
+    for (const lightCfg of config.lights) {
+      this._createLight(lightCfg);
+    }
 
-    // Key light — main directional
-    const keyLight = new THREE.DirectionalLight('#fff5e0', 1.5);
-    keyLight.position.set(5, 10, 5);
-    keyLight.castShadow = true;
-    keyLight.shadow.mapSize.set(2048, 2048);
-    keyLight.shadow.camera.near = 0.5;
-    keyLight.shadow.camera.far = 50;
-    keyLight.shadow.camera.left = -10;
-    keyLight.shadow.camera.right = 10;
-    keyLight.shadow.camera.top = 10;
-    keyLight.shadow.camera.bottom = -10;
-    keyLight.shadow.bias = -0.001;
-    this._scene.add(keyLight);
-
-    // Fill light — soft opposite side
-    const fillLight = new THREE.DirectionalLight('#c0d8ff', 0.5);
-    fillLight.position.set(-5, 5, -3);
-    this._scene.add(fillLight);
+    // 2. Build objects
+    for (const objCfg of config.objects) {
+      this._createObject(objCfg);
+    }
   }
 
-  /** Register a named object for scene lookup */
-  registerObject(id: string, object: THREE.Object3D): void {
-    this.objectRegistry.set(id, object);
-    this._scene.add(object);
+  private _createLight(cfg: LightConfig): void {
+    let light: THREE.Light;
+
+    if (cfg.type === "ambient") {
+      light = new THREE.AmbientLight(cfg.color, cfg.intensity);
+    } else if (cfg.type === "directional") {
+      const dirLight = new THREE.DirectionalLight(cfg.color, cfg.intensity);
+      if (cfg.position) {
+        dirLight.position.set(cfg.position.x, cfg.position.y, cfg.position.z);
+      }
+      if (cfg.castShadow) {
+        dirLight.castShadow = true;
+        dirLight.shadow.mapSize.set(2048, 2048);
+        dirLight.shadow.bias = -0.0005;
+        dirLight.shadow.camera.near = 0.5;
+        dirLight.shadow.camera.far = 40;
+        dirLight.shadow.camera.left = -10;
+        dirLight.shadow.camera.right = 10;
+        dirLight.shadow.camera.top = 10;
+        dirLight.shadow.camera.bottom = -10;
+      }
+      light = dirLight;
+    } else if (cfg.type === "point") {
+      const pointLight = new THREE.PointLight(cfg.color, cfg.intensity, 12, 1.5);
+      if (cfg.position) {
+        pointLight.position.set(cfg.position.x, cfg.position.y, cfg.position.z);
+      }
+      light = pointLight;
+    } else {
+      light = new THREE.AmbientLight(cfg.color, cfg.intensity);
+    }
+
+    this.sceneGraph.addLight(light);
   }
 
-  /** Look up a registered scene object by id */
+  private _createObject(cfg: SceneObjectConfig): void {
+    let mesh: THREE.Object3D;
+
+    if (cfg.primitive) {
+      let geo: THREE.BufferGeometry;
+      const p = cfg.primitive;
+
+      if (p.geometry === "plane") {
+        geo = new THREE.PlaneGeometry(p.width ?? 10, p.height ?? 10);
+      } else if (p.geometry === "cylinder") {
+        geo = new THREE.CylinderGeometry(p.radius ?? 0.5, p.radius ?? 0.5, p.height ?? 2, 16);
+      } else {
+        // default box
+        geo = new THREE.BoxGeometry(p.width ?? 1, p.height ?? 1, p.depth ?? 1);
+      }
+
+      const mat = new THREE.MeshStandardMaterial({
+        color: new THREE.Color(p.color),
+        roughness: 0.6,
+        metalness: 0.1,
+      });
+
+      mesh = new THREE.Mesh(geo, mat);
+    } else {
+      mesh = new THREE.Group();
+    }
+
+    mesh.position.set(cfg.position.x, cfg.position.y, cfg.position.z);
+    if (cfg.rotation) {
+      mesh.rotation.set(cfg.rotation.x, cfg.rotation.y, cfg.rotation.z);
+    }
+    if (cfg.scale) {
+      mesh.scale.set(cfg.scale.x, cfg.scale.y, cfg.scale.z);
+    }
+
+    mesh.castShadow = cfg.castShadow ?? false;
+    mesh.receiveShadow = cfg.receiveShadow ?? false;
+
+    this.sceneGraph.addEnvironmentObject(cfg.id, mesh);
+  }
+
+  registerCharacter(id: string, object: THREE.Object3D): void {
+    this.sceneGraph.addCharacter(id, object);
+  }
+
   getObject(id: string): THREE.Object3D | null {
-    return this.objectRegistry.get(id) ?? null;
+    return this.sceneGraph?.getObject(id) ?? null;
   }
 
-  /** Register an update callback (called every frame) */
   addUpdateCallback(cb: (delta: number) => void): void {
     this.updateCallbacks.push(cb);
   }
@@ -120,11 +163,8 @@ export class SceneManager {
   startRenderLoop(): void {
     const loop = () => {
       this.animFrameId = requestAnimationFrame(loop);
-      const delta = Math.min(this.clock.getDelta(), 0.05); // cap at 50ms
+      const delta = Math.min(this.clock.getDelta(), 0.05);
 
-      this.controls.update();
-
-      // Run all registered update callbacks
       for (const cb of this.updateCallbacks) {
         cb(delta);
       }
@@ -133,7 +173,6 @@ export class SceneManager {
     };
     this.clock.start();
     loop();
-    console.log('[SceneManager] render loop started');
   }
 
   stopRenderLoop(): void {
@@ -155,10 +194,8 @@ export class SceneManager {
 
   dispose(): void {
     this.stopRenderLoop();
-    this.controls.dispose();
     this.renderer.dispose();
   }
 }
 
-// Singleton
 export const sceneManager = new SceneManager();

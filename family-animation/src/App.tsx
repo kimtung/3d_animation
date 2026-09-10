@@ -1,10 +1,12 @@
 import { Viewport } from "@ui/Viewport.tsx";
 import { useCharacterStore } from "@store/characterStore.ts";
+import { useTimelineStore } from "@store/timelineStore.ts";
 import "./App.css";
 
 function App() {
   const { behaviorState, emotion, position, isTalking, currentDialogue, _actions } =
     useCharacterStore();
+  const { currentTime, duration, isPlaying, _controls } = useTimelineStore();
 
   const stateClass = `status-${behaviorState.toLowerCase()}`;
 
@@ -69,13 +71,50 @@ function App() {
           )}
         </div>
 
-        {/* Bottom — Timeline placeholder */}
+        {/* Bottom — Interactive Timeline Bar */}
         <div className="timeline-bar">
-          <span className="timeline-label">Timeline</span>
-          <div className="timeline-track">
-            <div className="timeline-playhead" />
-          </div>
-          <span className="timeline-time">0.0s</span>
+          <button
+            style={{
+              background: isPlaying ? "#ef4444" : "#10b981",
+              border: "none",
+              borderRadius: "4px",
+              color: "#fff",
+              padding: "5px 12px",
+              cursor: "pointer",
+              fontWeight: "bold",
+              fontSize: "12px",
+            }}
+            onClick={() => (isPlaying ? _controls?.pause() : _controls?.play())}
+          >
+            {isPlaying ? "⏸️ Pause" : "▶️ Play Episode"}
+          </button>
+          <button
+            style={{
+              background: "#374151",
+              border: "none",
+              borderRadius: "4px",
+              color: "#fff",
+              padding: "5px 8px",
+              cursor: "pointer",
+              fontSize: "12px",
+            }}
+            onClick={() => _controls?.reset()}
+          >
+            🔄 Reset
+          </button>
+          <span className="timeline-label">Progress</span>
+          <input
+            type="range"
+            min={0}
+            max={duration || 25}
+            step={0.1}
+            value={currentTime}
+            onChange={(e) => _controls?.seek(parseFloat(e.target.value))}
+            style={{ flex: 1, cursor: "pointer", accentColor: "var(--accent)" }}
+          />
+          <span className="timeline-time">
+            {currentTime.toFixed(1)}s / {duration.toFixed(0)}s
+          </span>
         </div>
       </main>
 

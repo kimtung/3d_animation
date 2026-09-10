@@ -346,18 +346,18 @@ any       → LOOKING   (lookAt — parallel, không thay đổi primary state)
 
 ## M2.1 — Living Room
 
-**Status:** ⬜ TODO
+**Status:** ✅ DONE
 
 **Goal:** Scene living room với các objects có named IDs. SceneManager có object registry.
 
 ### Tasks
 
-- [ ] Cập nhật `engine/scene/SceneManager.ts`:
-  - [ ] `loadEnvironment(config: SceneConfig)` — load tất cả objects
-  - [ ] `getObject(id: string)` → Object3D | null
-  - [ ] `addCharacter(id, object3D)`
-  - [ ] Object registry: `Map<string, Object3D>`
-- [ ] `scenes/living-room/livingRoom.ts` — `SceneConfig`:
+- [x] Cập nhật `engine/scene/SceneManager.ts`:
+  - [x] `loadEnvironment(config: SceneConfig)` — load tất cả objects
+  - [x] `getObject(id: string)` → Object3D | null
+  - [x] `addCharacter(id, object3D)`
+  - [x] Object registry: `Map<string, Object3D>`
+- [x] `scenes/living-room/livingRoom.ts` — `SceneConfig`:
 
 | Object      | Position          | Type             |
 |-------------|-------------------|------------------|
@@ -367,9 +367,9 @@ any       → LOOKING   (lookAt — parallel, không thay đổi primary state)
 | coffee_table| (1.5, 0.3, -0.5)  | Box primitive    |
 | lamp        | (-3, 0, 2)        | Cylinder prim.   |
 
-- [ ] Thêm màu sắc cho từng object (không để grey tất cả)
-- [ ] Test: `sceneManager.getObject('sofa')` → đúng Object3D
-- [ ] Test: `await dad.walkTo(sceneManager.getObject('sofa'))` → Dad đi tới sofa
+- [x] Thêm màu sắc cho từng object (không để grey tất cả)
+- [x] Test: `sceneManager.getObject('sofa')` → đúng Object3D
+- [x] Test: `await dad.walkTo(sceneManager.getObject('sofa'))` → Dad đi tới sofa
 
 ### Definition of Done
 > ✅ Thấy living room với 5 objects màu sắc khác nhau. Dad đi đúng tới sofa.
@@ -378,23 +378,23 @@ any       → LOOKING   (lookAt — parallel, không thay đổi primary state)
 
 ## M2.2 — Camera Controller
 
-**Status:** ⬜ TODO
+**Status:** ✅ DONE
 
 **Goal:** Static / follow / lookAt camera với smooth transitions.
 
 ### Tasks
 
-- [ ] `engine/camera/CameraController.ts`:
-  - [ ] Constructor: `(PerspectiveCamera)`
-  - [ ] `setMode(mode: CameraMode)`
-  - [ ] `setStatic(position, lookAt)` — fixed cinematic shot
-  - [ ] `follow(target, offset?)` — smooth follow cam
-  - [ ] `lookAt(target)` — smooth lookAt
-  - [ ] `update(delta)` — lerp camera position và rotation
-- [ ] Default: follow Dad với offset `(0, 3, 6)`
-- [ ] Test: camera follow khi `dad.walkTo()`
-- [ ] Test: `camera.setStatic()` — camera không di chuyển
-- [ ] Test: switch giữa các modes không glitch
+- [x] `engine/camera/CameraController.ts`:
+  - [x] Constructor: `(PerspectiveCamera)`
+  - [x] `setMode(mode: CameraMode)`
+  - [x] `setStatic(position, lookAt)` — fixed cinematic shot
+  - [x] `follow(target, offset?)` — smooth follow cam
+  - [x] `lookAt(target)` — smooth lookAt
+  - [x] `update(delta)` — lerp camera position và rotation
+- [x] Default: follow Dad với offset `(0, 3, 6)`
+- [x] Test: camera follow khi `dad.walkTo()`
+- [x] Test: `camera.setStatic()` — camera không di chuyển
+- [x] Test: switch giữa các modes không glitch
 
 ### Camera Modes
 
@@ -411,26 +411,26 @@ look_at  → Position cố định, rotation lerps toward target
 
 ## M2.3 — Timeline Engine
 
-**Status:** ⬜ TODO
+**Status:** ✅ DONE
 
 **Goal:** Load JSON timeline, dispatch Character API calls đúng thời điểm.
 
 ### Tasks
 
-- [ ] `engine/timeline/Timeline.ts`:
-  - [ ] `load(events: TimelineEvent[])` hoặc `loadFromJson(json)`
-  - [ ] `play()`
-  - [ ] `pause()`
-  - [ ] `seek(time: number)`
-  - [ ] `reset()`
-  - [ ] `update(delta)` — advance time, dispatch events
-  - [ ] `onEvent(cb)` — hook cho UI
-  - [ ] `registerActor(id, controller)` — link character id → controller
-- [ ] Action dispatcher: switch `event.action` → gọi đúng Character API
-- [ ] `scenes/living-room/livingRoom.timeline.json` — prototype story 25s
-- [ ] Test: `timeline.play()` → Dad tự thực hiện sequence
-- [ ] Test: `timeline.pause()` → dừng đúng chỗ
-- [ ] Test: `timeline.seek(10)` → jump đến t=10s
+- [x] `engine/timeline/Timeline.ts`:
+  - [x] `load(events: TimelineEvent[])` hoặc `loadFromJson(json)`
+  - [x] `play()`
+  - [x] `pause()`
+  - [x] `seek(time: number)`
+  - [x] `reset()`
+  - [x] `update(delta)` — advance time, dispatch events
+  - [x] `onEvent(cb)` — hook cho UI
+  - [x] `registerActor(id, controller)` — link character id → controller
+- [x] Action dispatcher: switch `event.action` → gọi đúng Character API
+- [x] `scenes/living-room/livingRoom.timeline.json` — prototype story 25s
+- [x] Test: `timeline.play()` → Dad tự thực hiện sequence
+- [x] Test: `timeline.pause()` → dừng đúng chỗ
+- [x] Test: `timeline.seek(10)` → jump đến t=10s
 
 ### Definition of Done
 > ✅ Load JSON timeline, play, Dad tự thực hiện toàn bộ 25s sequence không cần gọi API thủ công.
@@ -439,13 +439,13 @@ look_at  → Position cố định, rotation lerps toward target
 
 ## M2.4 — Scene Graph
 
-**Status:** ⬜ TODO
+**Status:** ✅ DONE
 
 **Goal:** Scene graph có cấu trúc rõ ràng, hỗ trợ named lookup, parent-child relationships.
 
 ### Tasks
 
-- [ ] Refactor `SceneManager` thành scene graph có hierarchy:
+- [x] Refactor `SceneManager` thành scene graph có hierarchy:
   ```
   Scene
   ├── Environment
@@ -459,10 +459,10 @@ look_at  → Position cố định, rotation lerps toward target
   ├── Lights
   └── Camera
   ```
-- [ ] `SceneGraph.ts` — typed wrapper cho Three.js scene hierarchy
-- [ ] Hỗ trợ `getNode(path)` → Object3D, ví dụ `getNode('Environment/sofa')`
-- [ ] Hỗ trợ `getAllCharacters()` → Character list
-- [ ] Position anchors: define named positions (sofa_sit_pos, tv_look_pos, ...)
+- [x] `SceneGraph.ts` — typed wrapper cho Three.js scene hierarchy
+- [x] Hỗ trợ `getNode(path)` → Object3D, ví dụ `getNode('Environment/sofa')`
+- [x] Hỗ trợ `getAllCharacters()` → Character list
+- [x] Position anchors: define named positions (sofa_sit_pos, tv_look_pos, ...)
 
 ### Definition of Done
 > ✅ Scene có hierarchy rõ ràng. Named lookup hoạt động. Position anchors đúng.

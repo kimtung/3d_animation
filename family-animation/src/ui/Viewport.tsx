@@ -1,14 +1,14 @@
-// ============================================================
-// Viewport — React component that owns the canvas
-// Mounts Three.js engine; does NOT contain 3D logic.
-// ============================================================
-
 import { useEffect, useRef } from "react";
-import * as THREE from "three";
 import { sceneManager } from "@engine/scene/SceneManager.ts";
 import { characterFactory } from "@engine/character/CharacterFactory.ts";
 import { dadDefinition } from "@characters/dad/dad.definition.ts";
+import { livingRoomConfig } from "@scenes/living-room/livingRoom.ts";
+import livingRoomTimelineData from "@scenes/living-room/livingRoom.timeline.json";
+import type { StoryTimeline } from "@engine/timeline/TimelineEvent.ts";
+import { CameraController } from "@engine/camera/CameraController.ts";
+import { timelineEngine } from "@engine/timeline/Timeline.ts";
 import { useCharacterStore } from "@store/characterStore.ts";
+import { useTimelineStore } from "@store/timelineStore.ts";
 
 export function Viewport() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -17,19 +17,52 @@ export function Viewport() {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
+    // 1. Setup SceneManager & Load Living Room Environment
     sceneManager.setup(canvas);
+    sceneManager.loadEnvironment(livingRoomConfig);
+
+    // 2. Camera Controller
+    const cameraController = new CameraController(sceneManager.camera);
+    sceneManager.addUpdateCallback((delta) => cameraController.update(delta));
+
+    // 3. Timeline Engine Setup
+    timelineEngine.setSceneManager(sceneManager);
+    timelineEngine.setCameraController(cameraController);
+    timelineEngine.load(livingRoomTimelineData as unknown as StoryTimeline);
+    sceneManager.addUpdateCallback((delta) => timelineEngine.update(delta));
+
+    // Sync timeline state to store
+    timelineEngine.onTimeUpdate((currentTime, isPlaying) => {
+      useTimelineStore.getState()._sync({
+        currentTime,
+        isPlaying,
+        duration: timelineEngine.getDuration(),
+      });
+    });
+
+    useTimelineStore.setState({
+      _controls: {
+        play: () => timelineEngine.play(),
+        pause: () => timelineEngine.pause(),
+        seek: (t) => timelineEngine.seek(t),
+        reset: () => timelineEngine.reset(),
+      },
+    });
+
     sceneManager.startRenderLoop();
 
     let isDisposed = false;
 
-    // Load Dad character
+    // 4. Load Dad character
     characterFactory.create(dadDefinition).then((dad) => {
       if (isDisposed) {
         dad.dispose();
         return;
       }
 
-      sceneManager.registerObject("dad", dad.object3D);
+      sceneManager.registerCharacter("dad", dad.object3D);
+      cameraController.follow(dad.object3D);
+      timelineEngine.registerActor("dad", dad);
 
       // Register update loop for Dad
       const onUpdate = (delta: number) => {
@@ -49,8 +82,14 @@ export function Viewport() {
       // Expose actions to UI store
       useCharacterStore.setState({
         _actions: {
-          walkToSofa: () => dad.walkTo(new THREE.Vector3(2.5, 0, 1.0)),
-          lookAtTV: () => dad.lookAt(new THREE.Vector3(0, 1.2, -4.0)),
+          walkToSofa: () => {
+            const sofa = sceneManager.getObject("sofa");
+            if (sofa) dad.walkTo(sofa);
+          },
+          lookAtTV: () => {
+            const tv = sceneManager.getObject("tv");
+            if (tv) dad.lookAt(tv);
+          },
           sit: () => dad.sit(),
           stand: () => dad.stand(),
           talk: (text: string) => dad.say(text),

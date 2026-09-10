@@ -1,0 +1,84 @@
+﻿{
+  "id": "dad_watches_tv",
+  "title": "Bố xem TV trộm (25s Prototype Episode)",
+  "duration": 25,
+  "events": [
+    {
+      "time": 0,
+      "actor": "dad",
+      "action": "idle"
+    },
+    {
+      "time": 1.2,
+      "actor": "dad",
+      "action": "look_at",
+      "target": "tv"
+    },
+    {
+      "time": 2.5,
+      "actor": "dad",
+      "action": "walk_to",
+      "target": "sofa"
+    },
+    {
+      "time": 6.0,
+      "actor": "dad",
+      "action": "sit"
+    },
+    {
+      "time": 8.0,
+      "actor": "dad",
+      "action": "look_at",
+      "target": "tv"
+    },
+    {
+      "time": 10.0,
+      "actor": "dad",
+      "action": "say",
+      "params": {
+        "text": "Anh chỉ xem một chút thôi, mẹ sắp về rồi..."
+      }
+    },
+    {
+      "time": 13.5,
+      "actor": "dad",
+      "action": "laugh"
+    },
+    {
+      "time": 15.0,
+      "actor": "camera",
+      "action": "set_camera_mode",
+      "params": {
+        "cameraMode": "static"
+      }
+    },
+    {
+      "time": 16.5,
+      "actor": "dad",
+      "action": "look_at",
+      "target": "door_entrance"
+    },
+    {
+      "time": 18.0,
+      "actor": "dad",
+      "action": "set_emotion",
+      "params": {
+        "emotion": "embarrassed"
+      }
+    },
+    {
+      "time": 20.5,
+      "actor": "dad",
+      "action": "say",
+      "params": {
+        "text": "Ủa... em về lúc nào thế?!"
+      }
+    },
+    {
+      "time": 23.0,
+      "actor": "dad",
+      "action": "look_at",
+      "target": "coffee_table"
+    }
+  ]
+}
