@@ -19,9 +19,16 @@ export const dadDefinition: CharacterDefinition = {
   },
 
   appearance: {
-    bodyType: "adult_male_stylized",
-    ageGroup: "mid_40s",
-    clothing: ["blue_tshirt", "casual_slacks", "retro_glasses"],
+    bodyType: "stylized_family_dad",
+    ageGroup: "early_30s",
+    clothing: [
+      "orange_sweater_crewneck",
+      "white_inner_collared_shirt",
+      "slate_blue_slim_jeans",
+      "tan_suede_sneakers_white_sole",
+      "modern_black_glasses",
+      "pompadour_hair_full_beard",
+    ],
   },
 
   defaultEmotion: "neutral",

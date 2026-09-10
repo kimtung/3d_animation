@@ -1,4 +1,4 @@
-// Polyfill browser globals needed by three/addons/exporters/GLTFExporter in node
+﻿// Polyfill browser globals needed by three/addons/exporters/GLTFExporter in node
 class MockFileReader {
   readAsArrayBuffer(blob) {
     blob.arrayBuffer().then((buf) => {
@@ -15,14 +15,18 @@ import fs from "fs";
 import path from "path";
 
 // ============================================================
-// STYLIZED CARTOON DAD GENERATOR (Seamless Anatomical Structure)
-// - Root at Ground Y=0
-// - Pelvis & Hip Joint at Y=0.85
-// - Left & Right Legs hanging from Hip to Ground (0 to 0.85)
-// - Torso (Khakis + Blue Polo + Shoulders + Neck) from Y=0.85 to 1.55
-// - Shoulders seamlessly span -0.38 to +0.38
-// - Neck naturally arises from chest/collar to Head
-// - Head with facial features (eyes, eyebrows, nose, mustache, glasses) at Y=1.55+
+// STYLIZED PIXAR/3D CARTOON DAD GENERATOR (Accurate Reference Match)
+//
+// Reference Image Visual Blueprint:
+// - Hair: Stylish warm dark brown pompadour with soft quiff & side part
+// - Face: Warm peach-cream skin, round black rim modern glasses
+// - Beard: Full neat hipster beard & mustache surrounding open warm smile
+// - Eyes: Large friendly expressive hazel/dark eyes
+// - Torso: Vibrant warm pumpkin orange crewneck / V-neck sweater
+// - Inner Shirt: Subtle light grey/white collared shirt peeking out at neck
+// - Body: Tall, fit yet cozy family man silhouette (broad shoulders, athletic-lean)
+// - Legs: Modern slim-straight slate blue/grey jeans
+// - Shoes: Warm tan / camel suede casual sneakers with white sole
 // ============================================================
 
 const rootGroup = new THREE.Group();
@@ -35,235 +39,306 @@ rootBone.position.set(0, 0, 0);
 
 const spineBone = new THREE.Bone();
 spineBone.name = "Spine";
-spineBone.position.set(0, 0.85, 0); // Hip/Pelvis height
+spineBone.position.set(0, 0.95, 0); // Natural hip height
 rootBone.add(spineBone);
 
 const headBone = new THREE.Bone();
 headBone.name = "Head";
-headBone.position.set(0, 0.78, 0); // Clear neck hinge separating head from torso
+headBone.position.set(0, 0.78, 0); // Neck hinge to head center
 spineBone.add(headBone);
 
 const armLeft = new THREE.Bone();
 armLeft.name = "Arm_L";
-armLeft.position.set(-0.38, 0.42, 0); // Left shoulder socket
+armLeft.position.set(-0.40, 0.44, 0); // Left shoulder socket
 spineBone.add(armLeft);
 
 const armRight = new THREE.Bone();
 armRight.name = "Arm_R";
-armRight.position.set(0.38, 0.42, 0); // Right shoulder socket
+armRight.position.set(0.40, 0.44, 0); // Right shoulder socket
 spineBone.add(armRight);
 
 const legLeft = new THREE.Bone();
 legLeft.name = "Leg_L";
-legLeft.position.set(-0.18, 0, 0); // Left hip joint
+legLeft.position.set(-0.16, 0, 0); // Left hip
 spineBone.add(legLeft);
 
 const legRight = new THREE.Bone();
 legRight.name = "Leg_R";
-legRight.position.set(0.18, 0, 0); // Right hip joint
+legRight.position.set(0.16, 0, 0); // Right hip
 spineBone.add(legRight);
 
-// Register skeleton
-const bones = [rootBone, spineBone, headBone, armLeft, armRight, legLeft, legRight];
+// --- COLOR PALETTE FROM REFERENCE IMAGE ---
+const orangeSweaterMat = new THREE.MeshStandardMaterial({ color: 0xf97316, roughness: 0.6 }); // vibrant orange sweater
+const innerCollarMat   = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, roughness: 0.5 }); // white/light grey inner shirt
+const blueJeansMat     = new THREE.MeshStandardMaterial({ color: 0x475569, roughness: 0.8 }); // slate blue jeans
+const tanShoeMat       = new THREE.MeshStandardMaterial({ color: 0xc2783d, roughness: 0.7 }); // camel tan suede shoes
+const shoeSoleMat      = new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.3 }); // clean white sneaker sole
+const skinMat          = new THREE.MeshStandardMaterial({ color: 0xfbd0b7, roughness: 0.65 }); // warm healthy cartoon skin
+const brownHairMat     = new THREE.MeshStandardMaterial({ color: 0x3d2012, roughness: 0.85 }); // rich dark chocolate hair
+const beardMat         = new THREE.MeshStandardMaterial({ color: 0x422214, roughness: 0.9 }); // full neat beard
+const blackGlassesMat  = new THREE.MeshStandardMaterial({ color: 0x18181b, roughness: 0.25 }); // modern black matte frame
+const whiteTeethMat    = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.1 }); // bright happy teeth
+const mouthMat         = new THREE.MeshStandardMaterial({ color: 0x881337, roughness: 0.5 }); // deep warm mouth interior
 
-// --- MATERIALS ---
-const shirtMat = new THREE.MeshStandardMaterial({ color: 0x2563eb, roughness: 0.5 }); // vibrant blue polo
-const collarMat = new THREE.MeshStandardMaterial({ color: 0x1d4ed8, roughness: 0.4 });
-const pantsMat = new THREE.MeshStandardMaterial({ color: 0x9a3412, roughness: 0.8 }); // warm brown khakis
-const shoeMat = new THREE.MeshStandardMaterial({ color: 0x29180d, roughness: 0.4 }); // brown leather shoes
-const skinMat = new THREE.MeshStandardMaterial({ color: 0xfbcfe8, roughness: 0.7 }); // peach skin
-const hairMat = new THREE.MeshStandardMaterial({ color: 0x451a03, roughness: 0.9 });
-const glassMat = new THREE.MeshStandardMaterial({ color: 0x09090b, roughness: 0.3 });
-
-// --- 1. TORSO & SHOULDERS & BELLY (attached to spineBone) ---
-// Upper torso & shoulders (Polo shirt)
-const torsoGeo = new THREE.CylinderGeometry(0.34, 0.38, 0.60, 16);
+// ============================================================
+// 1. TORSO & SHOULDERS (Orange Sweater + Inner Collar)
+// ============================================================
+// Main upper torso (Sweater)
+const torsoGeo = new THREE.CylinderGeometry(0.32, 0.30, 0.62, 16);
 torsoGeo.translate(0, 0.28, 0);
-const torsoMesh = new THREE.Mesh(torsoGeo, shirtMat);
+const torsoMesh = new THREE.Mesh(torsoGeo, orangeSweaterMat);
 torsoMesh.castShadow = true;
 spineBone.add(torsoMesh);
 
-// Cartoon dad belly (cute front bulge)
-const bellyGeo = new THREE.SphereGeometry(0.28, 16, 16);
-bellyGeo.scale(1.2, 0.9, 1.1);
-bellyGeo.translate(0, 0.18, 0.16);
-const bellyMesh = new THREE.Mesh(bellyGeo, shirtMat);
-bellyMesh.castShadow = true;
-spineBone.add(bellyMesh);
+// Soft natural chest taper
+const chestGeo = new THREE.SphereGeometry(0.28, 16, 16);
+chestGeo.scale(1.15, 0.85, 0.95);
+chestGeo.translate(0, 0.32, 0.08);
+const chestMesh = new THREE.Mesh(chestGeo, orangeSweaterMat);
+chestMesh.castShadow = true;
+spineBone.add(chestMesh);
 
-// Curved Shoulder Pads for natural shoulder line to arms
-const shoulderGeo = new THREE.SphereGeometry(0.15, 12, 12);
-shoulderGeo.scale(1.1, 0.9, 1.0);
-const shoulderL = new THREE.Mesh(shoulderGeo, shirtMat);
-shoulderL.position.set(-0.36, 0.42, 0);
+// Smooth rounded shoulders
+const shoulderGeo = new THREE.SphereGeometry(0.14, 12, 12);
+const shoulderL = new THREE.Mesh(shoulderGeo, orangeSweaterMat);
+shoulderL.position.set(-0.38, 0.44, 0);
 spineBone.add(shoulderL);
 
-const shoulderR = new THREE.Mesh(shoulderGeo, shirtMat);
-shoulderR.position.set(0.36, 0.42, 0);
+const shoulderR = new THREE.Mesh(shoulderGeo, orangeSweaterMat);
+shoulderR.position.set(0.38, 0.44, 0);
 spineBone.add(shoulderR);
 
-// Hip / Pelvis base (transition between shirt and legs)
-const pelvisGeo = new THREE.CylinderGeometry(0.36, 0.33, 0.18, 16);
-pelvisGeo.translate(0, -0.05, 0);
-const pelvisMesh = new THREE.Mesh(pelvisGeo, pantsMat);
+// Sweater waist ribbing & Pelvis (waist band of orange sweater + top of jeans)
+const waistGeo = new THREE.CylinderGeometry(0.30, 0.28, 0.12, 16);
+waistGeo.translate(0, -0.04, 0);
+const waistMesh = new THREE.Mesh(waistGeo, orangeSweaterMat);
+waistMesh.castShadow = true;
+spineBone.add(waistMesh);
+
+const pelvisGeo = new THREE.CylinderGeometry(0.28, 0.27, 0.14, 16);
+pelvisGeo.translate(0, -0.12, 0);
+const pelvisMesh = new THREE.Mesh(pelvisGeo, blueJeansMat);
 pelvisMesh.castShadow = true;
 spineBone.add(pelvisMesh);
 
-// --- 2. DISTINCT VISIBLE NECK & POLO COLLAR ---
-// 1. Solid peach neck cylinder bridging spine top to head
-const neckGeo = new THREE.CylinderGeometry(0.14, 0.16, 0.28, 16);
-neckGeo.translate(0, 0.62, 0); // Visible neck column between torso Y=0.58 and head base Y=0.78
+// ============================================================
+// 2. CLEAR VISIBLE NECK & LAYERED COLLAR (Shirt under Sweater)
+// ============================================================
+// Visible Neck Column
+const neckGeo = new THREE.CylinderGeometry(0.13, 0.15, 0.28, 16);
+neckGeo.translate(0, 0.62, 0);
 const neckMesh = new THREE.Mesh(neckGeo, skinMat);
 neckMesh.castShadow = true;
 spineBone.add(neckMesh);
 
-// 2. Stylish polo shirt collar resting around the base of the neck
-const collarGeo = new THREE.TorusGeometry(0.22, 0.055, 8, 24);
-collarGeo.rotateX(Math.PI / 2);
-collarGeo.translate(0, 0.55, 0);
-const collarMesh = new THREE.Mesh(collarGeo, collarMat);
-collarMesh.castShadow = true;
-spineBone.add(collarMesh);
+// Inner white/grey collared shirt peaking out
+const innerShirtGeo = new THREE.TorusGeometry(0.17, 0.035, 8, 20);
+innerShirtGeo.rotateX(Math.PI / 2);
+innerShirtGeo.translate(0, 0.58, 0);
+const innerShirtMesh = new THREE.Mesh(innerShirtGeo, innerCollarMat);
+innerShirtMesh.castShadow = true;
+spineBone.add(innerShirtMesh);
 
-// --- 3. FULL LEGS & SHOES (attached to leg bones, hanging down to ground Y=0) ---
+// V-neck / Crewneck sweater border
+const sweaterTrimGeo = new THREE.TorusGeometry(0.20, 0.04, 8, 20);
+sweaterTrimGeo.rotateX(Math.PI / 2);
+sweaterTrimGeo.translate(0, 0.54, 0);
+const sweaterTrimMesh = new THREE.Mesh(sweaterTrimGeo, orangeSweaterMat);
+spineBone.add(sweaterTrimMesh);
+
+// ============================================================
+// 3. SLIM SLATE BLUE JEANS & TAN SNEAKERS (Hanging to Floor Y=0)
+// ============================================================
+// Long slim legs matching cartoon reference
+const legGeo = new THREE.CylinderGeometry(0.13, 0.10, 0.85, 14);
+legGeo.translate(0, -0.44, 0);
+
 // Left Leg
-const thighGeo = new THREE.CylinderGeometry(0.15, 0.12, 0.70, 14);
-thighGeo.translate(0, -0.38, 0);
-const thighLMesh = new THREE.Mesh(thighGeo, pantsMat);
-thighLMesh.castShadow = true;
-legLeft.add(thighLMesh);
-
-// Left Shoe sitting flat on ground (Y = -0.85 relative to spine)
-const shoeGeo = new THREE.BoxGeometry(0.24, 0.16, 0.40);
-shoeGeo.translate(0, -0.77, 0.08);
-const shoeLMesh = new THREE.Mesh(shoeGeo, shoeMat);
-shoeLMesh.castShadow = true;
-legLeft.add(shoeLMesh);
+const legLMesh = new THREE.Mesh(legGeo, blueJeansMat);
+legLMesh.castShadow = true;
+legLeft.add(legLMesh);
 
 // Right Leg
-const thighRMesh = new THREE.Mesh(thighGeo.clone(), pantsMat);
-thighRMesh.castShadow = true;
-legRight.add(thighRMesh);
+const legRMesh = new THREE.Mesh(legGeo.clone(), blueJeansMat);
+legRMesh.castShadow = true;
+legRight.add(legRMesh);
 
-const shoeRMesh = new THREE.Mesh(shoeGeo.clone(), shoeMat);
-shoeRMesh.castShadow = true;
-legRight.add(shoeRMesh);
+// Tan Suede Shoes with White Soles
+const shoeUpperGeo = new THREE.BoxGeometry(0.20, 0.14, 0.36);
+shoeUpperGeo.translate(0, -0.85, 0.08);
 
-// --- 4. ARMS & HANDS (attached to arm bones) ---
-const armGeo = new THREE.CylinderGeometry(0.11, 0.09, 0.55, 12);
-armGeo.translate(0, -0.26, 0);
+const soleGeo = new THREE.BoxGeometry(0.21, 0.05, 0.38);
+soleGeo.translate(0, -0.92, 0.08);
 
-const handGeo = new THREE.SphereGeometry(0.11, 12, 12);
-handGeo.scale(1, 1.2, 0.9);
-handGeo.translate(0, -0.55, 0);
+// Left Shoe
+const shoeL = new THREE.Mesh(shoeUpperGeo, tanShoeMat);
+const soleL = new THREE.Mesh(soleGeo, shoeSoleMat);
+shoeL.castShadow = true;
+legLeft.add(shoeL);
+legLeft.add(soleL);
+
+// Right Shoe
+const shoeR = new THREE.Mesh(shoeUpperGeo.clone(), tanShoeMat);
+const soleR = new THREE.Mesh(soleGeo.clone(), shoeSoleMat);
+shoeR.castShadow = true;
+legRight.add(shoeR);
+legRight.add(soleR);
+
+// ============================================================
+// 4. ARMS & HANDS (Orange Sweater Sleeves)
+// ============================================================
+const armGeo = new THREE.CylinderGeometry(0.10, 0.08, 0.62, 12);
+armGeo.translate(0, -0.28, 0);
+
+const handGeo = new THREE.SphereGeometry(0.095, 12, 12);
+handGeo.scale(1, 1.25, 0.85);
+handGeo.translate(0, -0.62, 0);
 
 // Left Arm
-const armLMesh = new THREE.Mesh(armGeo, shirtMat);
-const handLMesh = new THREE.Mesh(handGeo, skinMat);
-armLMesh.castShadow = true;
-armLeft.add(armLMesh);
-armLeft.add(handLMesh);
+const armL = new THREE.Mesh(armGeo, orangeSweaterMat);
+const handL = new THREE.Mesh(handGeo, skinMat);
+armL.castShadow = true;
+armLeft.add(armL);
+armLeft.add(handL);
 
 // Right Arm
-const armRMesh = new THREE.Mesh(armGeo.clone(), shirtMat);
-const handRMesh = new THREE.Mesh(handGeo.clone(), skinMat);
-armRMesh.castShadow = true;
-armRight.add(armRMesh);
-armRight.add(handRMesh);
+const armR = new THREE.Mesh(armGeo.clone(), orangeSweaterMat);
+const handR = new THREE.Mesh(handGeo.clone(), skinMat);
+armR.castShadow = true;
+armRight.add(armR);
+armRight.add(handR);
 
-// --- 5. HEAD & FACIAL FEATURES (attached to headBone) ---
-const headGeo = new THREE.SphereGeometry(0.30, 20, 20);
-headGeo.scale(1.0, 1.12, 1.02);
-headGeo.translate(0, 0.12, 0); // perfectly seated on the neck
+// ============================================================
+// 5. CARTOON HEAD, STYLISH HAIR, BEARD & GLASSES
+// ============================================================
+// Stylized Head Mesh
+const headGeo = new THREE.SphereGeometry(0.28, 20, 20);
+headGeo.scale(1.0, 1.15, 1.05);
+headGeo.translate(0, 0.14, 0);
 const headMesh = new THREE.Mesh(headGeo, skinMat);
 headMesh.name = "DadHeadMesh";
 headMesh.castShadow = true;
 headBone.add(headMesh);
 
-// Hair
-const hairGeo = new THREE.SphereGeometry(0.32, 16, 16);
-hairGeo.scale(1.04, 0.65, 1.05);
-hairGeo.translate(0, 0.32, -0.02);
-const hairMesh = new THREE.Mesh(hairGeo, hairMat);
-headBone.add(hairMesh);
+// Signature Pompadour Hair (Full brown hair with volume on top)
+const hairBaseGeo = new THREE.SphereGeometry(0.30, 16, 16);
+hairBaseGeo.scale(1.03, 0.85, 1.05);
+hairBaseGeo.translate(0, 0.32, -0.02);
+const hairBase = new THREE.Mesh(hairBaseGeo, brownHairMat);
+headBone.add(hairBase);
 
-// Nose
-const noseGeo = new THREE.SphereGeometry(0.08, 14, 14);
-noseGeo.scale(1.1, 1.0, 1.2);
-const noseMat = new THREE.MeshStandardMaterial({ color: 0xf472b6, roughness: 0.6 });
+// Front Quiff / Swag Volume
+const quiffGeo = new THREE.SphereGeometry(0.18, 14, 14);
+quiffGeo.scale(1.3, 0.8, 1.1);
+quiffGeo.translate(0, 0.42, 0.14);
+const quiffMesh = new THREE.Mesh(quiffGeo, brownHairMat);
+headBone.add(quiffMesh);
+
+// Side Hair Left & Right
+const sideHairGeo = new THREE.BoxGeometry(0.08, 0.22, 0.18);
+const sideHairL = new THREE.Mesh(sideHairGeo, brownHairMat);
+sideHairL.position.set(-0.27, 0.22, 0.02);
+headBone.add(sideHairL);
+
+const sideHairR = new THREE.Mesh(sideHairGeo.clone(), brownHairMat);
+sideHairR.position.set(0.27, 0.22, 0.02);
+headBone.add(sideHairR);
+
+// Full Hipster Beard & Jaw contour
+const beardJawGeo = new THREE.SphereGeometry(0.27, 16, 16);
+beardJawGeo.scale(1.02, 0.75, 1.02);
+beardJawGeo.translate(0, 0.02, 0.08);
+const beardJawMesh = new THREE.Mesh(beardJawGeo, beardMat);
+headBone.add(beardJawMesh);
+
+// Prominent Neat Mustache
+const stacheGeo = new THREE.CapsuleGeometry(0.042, 0.16, 8, 12);
+stacheGeo.rotateZ(Math.PI / 2);
+const stacheMesh = new THREE.Mesh(stacheGeo, beardMat);
+stacheMesh.position.set(0, 0.09, 0.33);
+stacheMesh.scale.set(1.15, 0.85, 1.0);
+headBone.add(stacheMesh);
+
+// Friendly Warm Open Smile with Teeth
+const mouthGeo = new THREE.BoxGeometry(0.16, 0.07, 0.04);
+const mouthMesh = new THREE.Mesh(mouthGeo, mouthMat);
+mouthMesh.position.set(0, 0.03, 0.32);
+headBone.add(mouthMesh);
+
+const teethGeo = new THREE.BoxGeometry(0.13, 0.035, 0.02);
+const teethMesh = new THREE.Mesh(teethGeo, whiteTeethMat);
+teethMesh.position.set(0, 0.05, 0.33);
+headBone.add(teethMesh);
+
+// Rounded Friendly Cartoon Nose
+const noseGeo = new THREE.SphereGeometry(0.075, 14, 14);
+noseGeo.scale(1.1, 1.0, 1.25);
+const noseMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, roughness: 0.5 });
 const noseMesh = new THREE.Mesh(noseGeo, noseMat);
-noseMesh.position.set(0, 0.10, 0.33);
+noseMesh.position.set(0, 0.15, 0.34);
 headBone.add(noseMesh);
 
-// Eyes
-const eyeWhiteGeo = new THREE.SphereGeometry(0.08, 16, 16);
-eyeWhiteGeo.scale(0.85, 1.1, 0.6);
-const eyeWhiteMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.2 });
+// Large Expressive Eyes
+const eyeWhiteGeo = new THREE.SphereGeometry(0.075, 16, 16);
+eyeWhiteGeo.scale(0.9, 1.1, 0.6);
+const eyeWhiteMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.15 });
 
-const pupilGeo = new THREE.SphereGeometry(0.042, 12, 12);
-pupilGeo.scale(0.8, 1.0, 0.4);
-const pupilMat = new THREE.MeshStandardMaterial({ color: 0x18181b, roughness: 0.1 });
+const pupilGeo = new THREE.SphereGeometry(0.040, 12, 12);
+pupilGeo.scale(0.85, 1.0, 0.4);
+const pupilMat = new THREE.MeshStandardMaterial({ color: 0x1c1917, roughness: 0.1 });
 
 // Left Eye
 const eyeL = new THREE.Mesh(eyeWhiteGeo, eyeWhiteMat);
-eyeL.position.set(-0.10, 0.19, 0.29);
+eyeL.position.set(-0.11, 0.24, 0.28);
 const pupilL = new THREE.Mesh(pupilGeo, pupilMat);
-pupilL.position.set(-0.10, 0.19, 0.335);
+pupilL.position.set(-0.11, 0.24, 0.325);
 headBone.add(eyeL);
 headBone.add(pupilL);
 
 // Right Eye
 const eyeR = new THREE.Mesh(eyeWhiteGeo.clone(), eyeWhiteMat);
-eyeR.position.set(0.10, 0.19, 0.29);
+eyeR.position.set(0.11, 0.24, 0.28);
 const pupilR = new THREE.Mesh(pupilGeo.clone(), pupilMat);
-pupilR.position.set(0.10, 0.19, 0.335);
+pupilR.position.set(0.11, 0.24, 0.325);
 headBone.add(eyeR);
 headBone.add(pupilR);
 
-// Eyebrows
-const browGeo = new THREE.BoxGeometry(0.12, 0.03, 0.04);
-const browMat = new THREE.MeshStandardMaterial({ color: 0x451a03 });
-const browL = new THREE.Mesh(browGeo, browMat);
-browL.position.set(-0.11, 0.30, 0.30);
+// Friendly Eyebrows
+const browGeo = new THREE.BoxGeometry(0.12, 0.035, 0.04);
+const browL = new THREE.Mesh(browGeo, brownHairMat);
+browL.position.set(-0.12, 0.34, 0.29);
 browL.rotation.z = -0.12;
 headBone.add(browL);
 
-const browR = new THREE.Mesh(browGeo.clone(), browMat);
-browR.position.set(0.11, 0.30, 0.30);
+const browR = new THREE.Mesh(browGeo.clone(), brownHairMat);
+browR.position.set(0.12, 0.34, 0.29);
 browR.rotation.z = 0.12;
 headBone.add(browR);
 
-// Mustache
-const stacheGeo = new THREE.CapsuleGeometry(0.045, 0.15, 8, 12);
-stacheGeo.rotateZ(Math.PI / 2);
-const stacheMat = new THREE.MeshStandardMaterial({ color: 0x451a03, roughness: 0.8 });
-const stacheMesh = new THREE.Mesh(stacheGeo, stacheMat);
-stacheMesh.position.set(0, 0.03, 0.32);
-stacheMesh.scale.set(1.2, 0.7, 0.8);
-headBone.add(stacheMesh);
-
-// Glasses
-const glassRimGeo = new THREE.TorusGeometry(0.085, 0.015, 8, 20);
-const glassRimL = new THREE.Mesh(glassRimGeo, glassMat);
-glassRimL.position.set(-0.11, 0.19, 0.32);
+// Modern Rounded Black Frame Glasses (Like in reference)
+const glassRimGeo = new THREE.TorusGeometry(0.09, 0.016, 8, 24);
+const glassRimL = new THREE.Mesh(glassRimGeo, blackGlassesMat);
+glassRimL.position.set(-0.11, 0.24, 0.32);
 headBone.add(glassRimL);
 
-const glassRimR = new THREE.Mesh(glassRimGeo, glassMat);
-glassRimR.position.set(0.11, 0.19, 0.32);
+const glassRimR = new THREE.Mesh(glassRimGeo, blackGlassesMat);
+glassRimR.position.set(0.11, 0.24, 0.32);
 headBone.add(glassRimR);
 
-const glassBridge = new THREE.BoxGeometry(0.07, 0.015, 0.02);
-const bridgeMesh = new THREE.Mesh(glassBridge, glassMat);
-bridgeMesh.position.set(0, 0.19, 0.33);
+const glassBridge = new THREE.BoxGeometry(0.06, 0.016, 0.02);
+const bridgeMesh = new THREE.Mesh(glassBridge, blackGlassesMat);
+bridgeMesh.position.set(0, 0.24, 0.33);
 headBone.add(bridgeMesh);
 
 // Add bone hierarchy to scene
 rootGroup.add(rootBone);
 
-// --- NATURAL ANIMATION CLIPS ---
+// ============================================================
+// NATURAL ANIMATION CLIPS (Matching new Hip/Spine height)
+// ============================================================
 // 1. Idle Clip
 const idleTracks = [
-  new THREE.VectorKeyframeTrack("Spine.position", [0, 1, 2], [0, 0.85, 0, 0, 0.87, 0, 0, 0.85, 0]),
+  new THREE.VectorKeyframeTrack("Spine.position", [0, 1, 2], [0, 0.95, 0, 0, 0.97, 0, 0, 0.95, 0]),
   new THREE.QuaternionKeyframeTrack(
     "Arm_L.quaternion",
     [0, 1, 2],
@@ -316,7 +391,7 @@ const walkClip = new THREE.AnimationClip("walk", 1, walkTracks);
 
 // 3. Sit Clip
 const sitTracks = [
-  new THREE.VectorKeyframeTrack("Root.position", [0, 0.5, 1], [0, 0, 0, 0, -0.22, -0.12, 0, -0.42, -0.22]),
+  new THREE.VectorKeyframeTrack("Root.position", [0, 0.5, 1], [0, 0, 0, 0, -0.22, -0.12, 0, -0.45, -0.22]),
   new THREE.QuaternionKeyframeTrack("Leg_L.quaternion", [0, 1], [0, 0, 0, 1, 0.72, 0, 0, 0.69]),
   new THREE.QuaternionKeyframeTrack("Leg_R.quaternion", [0, 1], [0, 0, 0, 1, 0.72, 0, 0, 0.69]),
   new THREE.QuaternionKeyframeTrack("Spine.quaternion", [0, 1], [0, 0, 0, 1, -0.05, 0, 0, 0.99]),
@@ -325,7 +400,7 @@ const sitClip = new THREE.AnimationClip("sit", 1, sitTracks);
 
 // 4. Stand Clip
 const standTracks = [
-  new THREE.VectorKeyframeTrack("Root.position", [0, 0.5, 1], [0, -0.42, -0.22, 0, -0.22, -0.12, 0, 0, 0]),
+  new THREE.VectorKeyframeTrack("Root.position", [0, 0.5, 1], [0, -0.45, -0.22, 0, -0.22, -0.12, 0, 0, 0]),
   new THREE.QuaternionKeyframeTrack("Leg_L.quaternion", [0, 1], [0.72, 0, 0, 0.69, 0, 0, 0, 1]),
   new THREE.QuaternionKeyframeTrack("Leg_R.quaternion", [0, 1], [0.72, 0, 0, 0.69, 0, 0, 0, 1]),
   new THREE.QuaternionKeyframeTrack("Spine.quaternion", [0, 1], [-0.05, 0, 0, 0.99, 0, 0, 0, 1]),
@@ -361,7 +436,7 @@ exporter.parse(
     }
     const outFile = path.join(outDir, "dad.glb");
     fs.writeFileSync(outFile, Buffer.from(gltf));
-    console.log("Successfully generated anatomically seamless Dad at:", outFile, "Size:", gltf.byteLength, "bytes");
+    console.log("Successfully generated reference-matched cartoon Dad at:", outFile, "Size:", gltf.byteLength, "bytes");
   },
   (err) => {
     console.error("Export error:", err);
