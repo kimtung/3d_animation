@@ -1,0 +1,207 @@
+﻿/* ============================================================
+   App Layout — Family Animation Studio
+   ============================================================ */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --bg-dark:    #0d0d1a;
+  --bg-panel:   #13132b;
+  --bg-surface: #1a1a35;
+  --border:     #2a2a50;
+  --accent:     #6c63ff;
+  --accent-dim: #3d3880;
+  --text:       #e0e0ff;
+  --text-dim:   #7070a0;
+  --idle:       #64b5f6;
+  --walking:    #81c784;
+  --sitting:    #ffb74d;
+  --talking:    #f48fb1;
+  --font-mono:  'Consolas', 'Courier New', monospace;
+}
+
+html, body, #root {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg-dark);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 13px;
+}
+
+/* ── Layout ─────────────────────────────────────────────── */
+.app-layout {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  grid-template-rows: 1fr auto;
+  grid-template-areas:
+    "sidebar main"
+    "actions main";
+  width: 100%;
+  height: 100%;
+  gap: 0;
+}
+
+/* ── Sidebar ─────────────────────────────────────────────── */
+.sidebar {
+  grid-area: sidebar;
+  background: var(--bg-panel);
+  border-right: 1px solid var(--border);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow-y: auto;
+}
+
+.sidebar-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent);
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.panel {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 10px;
+}
+
+.panel-label {
+  font-size: 10px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 3px;
+}
+
+.panel-value {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.panel-value.status-idle    { color: var(--idle); }
+.panel-value.status-walking { color: var(--walking); }
+.panel-value.status-sitting { color: var(--sitting); }
+.panel-value.status-talking { color: var(--talking); }
+
+.panel-value.mono {
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+
+/* ── Main area ───────────────────────────────────────────── */
+.main-area {
+  grid-area: main;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.viewport-container {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  background: #0a0a18;
+}
+
+.viewport-label {
+  position: absolute;
+  top: 10px;
+  left: 12px;
+  font-size: 10px;
+  color: var(--text-dim);
+  background: rgba(0, 0, 0, 0.5);
+  padding: 3px 8px;
+  border-radius: 4px;
+  pointer-events: none;
+}
+
+/* ── Timeline bar ────────────────────────────────────────── */
+.timeline-bar {
+  height: 48px;
+  background: var(--bg-panel);
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 16px;
+}
+
+.timeline-label {
+  font-size: 11px;
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+
+.timeline-track {
+  flex: 1;
+  height: 6px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  position: relative;
+}
+
+.timeline-playhead {
+  width: 2px;
+  height: 14px;
+  background: var(--accent);
+  position: absolute;
+  top: -4px;
+  left: 0;
+  border-radius: 1px;
+}
+
+.timeline-time {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+
+/* ── Action panel ────────────────────────────────────────── */
+.action-panel {
+  grid-area: actions;
+  background: var(--bg-panel);
+  border-right: 1px solid var(--border);
+  border-top: 1px solid var(--border);
+  padding: 10px 12px;
+}
+
+.action-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-top: 6px;
+}
+
+.action-buttons button {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  color: var(--text);
+  font-size: 12px;
+  padding: 6px 8px;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.action-buttons button:hover:not(:disabled) {
+  background: var(--accent-dim);
+  border-color: var(--accent);
+}
+
+.action-buttons button:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}

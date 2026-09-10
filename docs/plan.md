@@ -1,4 +1,4 @@
-﻿# Plan – AI 3D Story Animation Engine
+# Plan – AI 3D Story Animation Engine
 
 > **Vision:** A programmable 3D character runtime for AI-generated family comedy stories.
 > **Nguyên tắc:** Mỗi milestone phải stable và có Definition of Done rõ ràng trước khi sang milestone tiếp theo.
@@ -79,25 +79,25 @@ AI 3D STORY ANIMATION ENGINE
 
 ## M0.1 — Project Setup
 
-**Status:** ⬜ TODO
+**Status:** ✅ DONE
 
 **Goal:** Vite + React + TypeScript + Three.js chạy được. Folder structure đúng chuẩn.
 
 ### Tasks
 
-- [ ] `npm create vite@latest family-animation -- --template react-ts`
-- [ ] `npm install three zustand`
-- [ ] `npm install -D @types/three`
-- [ ] Cấu hình `tsconfig.json` với path aliases:
+- [x] `npm create vite@latest family-animation -- --template react-ts`
+- [x] `npm install three zustand`
+- [x] `npm install -D @types/three`
+- [x] Cấu hình `tsconfig.json` với path aliases:
   - `@engine/*` → `src/engine/*`
   - `@characters/*` → `src/characters/*`
   - `@scenes/*` → `src/scenes/*`
   - `@ui/*` → `src/ui/*`
   - `@store/*` → `src/store/*`
   - `@hooks/*` → `src/hooks/*`
-- [ ] Cấu hình `vite.config.ts` với aliases + `assetsInclude: ['**/*.glb', '**/*.gltf']`
-- [ ] Tạo folder structure đầy đủ theo `struct.md`
-- [ ] Xóa boilerplate mặc định của Vite
+- [x] Cấu hình `vite.config.ts` với aliases + `assetsInclude: ['**/*.glb', '**/*.gltf']`
+- [x] Tạo folder structure đầy đủ theo `struct.md`
+- [x] Xóa boilerplate mặc định của Vite
 
 ### Definition of Done
 > ✅ `npm run dev` chạy không lỗi. Folder structure đúng. TypeScript path aliases resolve được.
@@ -106,23 +106,23 @@ AI 3D STORY ANIMATION ENGINE
 
 ## M0.2 — Engine Skeleton
 
-**Status:** ⬜ TODO
+**Status:** ✅ DONE
 
 **Goal:** Tạo toàn bộ interfaces và type definitions. Code chưa implement, chỉ cần compile được.
 
 ### Tasks
 
-- [ ] `engine/character/CharacterDefinition.ts` — interfaces đầy đủ
-- [ ] `engine/character/CharacterState.ts` — `BehaviorState`, `CharacterRuntimeState`
-- [ ] `engine/character/Character.ts` — `ICharacterController` interface
-- [ ] `engine/behavior/Behavior.ts` — `Behavior`, `BehaviorContext` interfaces
-- [ ] `engine/animation/AnimationDefinition.ts` — `AnimationName`, `AnimationDefinition`
-- [ ] `engine/emotion/EmotionDefinition.ts` — `EmotionType`, `EmotionDefinition`, `BoneOverride`
-- [ ] `engine/scene/SceneObject.ts` — `SceneObjectConfig`, `SceneConfig`
-- [ ] `engine/timeline/TimelineEvent.ts` — `TimelineEvent`, `ActionType`
-- [ ] `store/characterStore.ts` — Zustand store (empty state)
-- [ ] `types/index.ts` — re-export tất cả public types
-- [ ] Chạy `npm run type-check` — không có lỗi TypeScript
+- [x] `engine/character/CharacterDefinition.ts` — interfaces đầy đủ
+- [x] `engine/character/CharacterState.ts` — `BehaviorState`, `CharacterRuntimeState`
+- [x] `engine/character/Character.ts` — `ICharacterController` interface
+- [x] `engine/behavior/Behavior.ts` — `Behavior`, `BehaviorContext` interfaces
+- [x] `engine/animation/AnimationDefinition.ts` — `AnimationName`, `AnimationDefinition`
+- [x] `engine/emotion/EmotionDefinition.ts` — `EmotionType`, `EmotionDefinition`, `BoneOverride`
+- [x] `engine/scene/SceneObject.ts` — `SceneObjectConfig`, `SceneConfig`
+- [x] `engine/timeline/TimelineEvent.ts` — `TimelineEvent`, `ActionType`
+- [x] `store/characterStore.ts` — Zustand store (empty state)
+- [x] `types/index.ts` — re-export tất cả public types
+- [x] Chạy `npm run type-check` — không có lỗi TypeScript
 
 ### Definition of Done
 > ✅ `tsc --noEmit` pass. Tất cả interfaces được định nghĩa theo `data_model.md`.
@@ -131,22 +131,22 @@ AI 3D STORY ANIMATION ENGINE
 
 ## M0.3 — Basic 3D Viewport
 
-**Status:** ⬜ TODO
+**Status:** ✅ DONE
 
 **Goal:** Canvas Three.js render được, có lighting, có OrbitControls để debug.
 
 ### Tasks
 
-- [ ] Tạo `engine/scene/SceneManager.ts`:
-  - [ ] `setup(canvas)` — init WebGLRenderer, Scene, Camera
-  - [ ] `startRenderLoop()` — requestAnimationFrame loop với delta
-  - [ ] `stopRenderLoop()`
-  - [ ] Resize observer
-- [ ] `ui/Viewport.tsx` — mount canvas, gọi SceneManager.setup()
-- [ ] Thêm AmbientLight + DirectionalLight cơ bản
-- [ ] Thêm GridHelper để debug position
-- [ ] Thêm OrbitControls (Three.js addons) để xoay camera khi dev
-- [ ] `App.tsx` — layout skeleton (sidebar + viewport + bottom panel)
+- [x] Tạo `engine/scene/SceneManager.ts`:
+  - [x] `setup(canvas)` — init WebGLRenderer, Scene, Camera
+  - [x] `startRenderLoop()` — requestAnimationFrame loop với delta
+  - [x] `stopRenderLoop()`
+  - [x] Resize observer
+- [x] `ui/Viewport.tsx` — mount canvas, gọi SceneManager.setup()
+- [x] Thêm AmbientLight + DirectionalLight cơ bản
+- [x] Thêm GridHelper để debug position
+- [x] Thêm OrbitControls (Three.js addons) để xoay camera khi dev
+- [x] `App.tsx` — layout skeleton (sidebar + viewport + bottom panel)
 
 ### Definition of Done
 > ✅ Mở browser thấy canvas với grid, có thể xoay camera bằng chuột. Không có console error.
