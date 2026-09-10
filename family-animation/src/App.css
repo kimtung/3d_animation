@@ -1,4 +1,4 @@
-﻿/* ============================================================
+/* ============================================================
    App Layout — Family Animation Studio
    ============================================================ */
 
@@ -37,7 +37,7 @@ html, body, #root {
 /* ── Layout ─────────────────────────────────────────────── */
 .app-layout {
   display: grid;
-  grid-template-columns: 200px 1fr;
+  grid-template-columns: 240px 1fr;
   grid-template-rows: 1fr auto;
   grid-template-areas:
     "sidebar main"
@@ -60,11 +60,48 @@ html, body, #root {
 }
 
 .sidebar-title {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 700;
   color: var(--accent);
-  padding-bottom: 8px;
+  padding-bottom: 6px;
   border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Character Selector Tabs */
+.char-selector {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 4px;
+}
+
+.char-tab {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 4px;
+  color: var(--text-dim);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  transition: all 0.15s ease;
+}
+
+.char-tab:hover {
+  border-color: var(--accent);
+  color: var(--text);
+}
+
+.char-tab.active {
+  background: var(--accent-dim);
+  border-color: var(--accent);
+  color: #fff;
 }
 
 .panel {
@@ -117,22 +154,50 @@ html, body, #root {
   position: absolute;
   top: 10px;
   left: 12px;
-  font-size: 10px;
-  color: var(--text-dim);
-  background: rgba(0, 0, 0, 0.5);
-  padding: 3px 8px;
-  border-radius: 4px;
+  font-size: 11px;
+  color: #c4b5fd;
+  background: rgba(15, 10, 35, 0.75);
+  border: 1px solid #4338ca;
+  padding: 4px 10px;
+  border-radius: 6px;
   pointer-events: none;
+  backdrop-filter: blur(4px);
+}
+
+/* Speech Balloon Overlay */
+.speech-bubble {
+  position: absolute;
+  top: 15%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(18, 16, 38, 0.92);
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 20px;
+  border: 2px solid var(--accent);
+  font-size: 14px;
+  font-weight: bold;
+  pointer-events: none;
+  box-shadow: 0 8px 24px rgba(108, 99, 255, 0.35);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  animation: popIn 0.25s ease-out;
+}
+
+@keyframes popIn {
+  0% { transform: translate(-50%, -40%) scale(0.9); opacity: 0; }
+  100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
 }
 
 /* ── Timeline bar ────────────────────────────────────────── */
 .timeline-bar {
-  height: 48px;
+  height: 52px;
   background: var(--bg-panel);
   border-top: 1px solid var(--border);
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   padding: 0 16px;
 }
 
@@ -140,25 +205,6 @@ html, body, #root {
   font-size: 11px;
   color: var(--text-dim);
   white-space: nowrap;
-}
-
-.timeline-track {
-  flex: 1;
-  height: 6px;
-  background: var(--bg-surface);
-  border: 1px solid var(--border);
-  border-radius: 3px;
-  position: relative;
-}
-
-.timeline-playhead {
-  width: 2px;
-  height: 14px;
-  background: var(--accent);
-  position: absolute;
-  top: -4px;
-  left: 0;
-  border-radius: 1px;
 }
 
 .timeline-time {
@@ -175,12 +221,14 @@ html, body, #root {
   border-right: 1px solid var(--border);
   border-top: 1px solid var(--border);
   padding: 10px 12px;
+  max-height: 320px;
+  overflow-y: auto;
 }
 
 .action-buttons {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 4px;
   margin-top: 6px;
 }
 
@@ -189,8 +237,8 @@ html, body, #root {
   border: 1px solid var(--border);
   border-radius: 5px;
   color: var(--text);
-  font-size: 12px;
-  padding: 6px 8px;
+  font-size: 11px;
+  padding: 5px 8px;
   cursor: pointer;
   text-align: left;
   transition: background 0.15s, border-color 0.15s;

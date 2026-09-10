@@ -14,7 +14,20 @@ export type PersonalityTrait =
   | 'avoids_conflict'
   | 'loyal'
   | 'playful'
-  | 'observant';
+  | 'observant'
+  | 'caring'
+  | 'energetic'
+  | 'organized'
+  | 'warm'
+  | 'expressive'
+  | 'patient'
+  | 'cheerful'
+  | 'curious'
+  | 'adorable'
+  | 'bubbly'
+  | 'giggling'
+  | 'innocent'
+  | 'affectionate';
 
 export type CharacterCapability =
   | 'walk'

@@ -1,11 +1,26 @@
 {
-  "id": "dad_watches_tv",
-  "title": "Bố xem TV trộm (25s Prototype Episode)",
+  "id": "family_tv_surprise",
+  "title": "Bố xem TV bị cả nhà bắt quả tang (25s Family Prototype)",
   "duration": 25,
   "events": [
     {
       "time": 0,
       "actor": "dad",
+      "action": "idle"
+    },
+    {
+      "time": 0,
+      "actor": "mom",
+      "action": "idle"
+    },
+    {
+      "time": 0,
+      "actor": "son",
+      "action": "idle"
+    },
+    {
+      "time": 0,
+      "actor": "daughter",
       "action": "idle"
     },
     {
@@ -37,7 +52,7 @@
       "actor": "dad",
       "action": "say",
       "params": {
-        "text": "Anh chỉ xem một chút thôi, mẹ sắp về rồi..."
+        "text": "Anh chỉ xem một chút thôi, mẹ và mấy đứa sắp về rồi..."
       }
     },
     {
@@ -54,10 +69,21 @@
       }
     },
     {
+      "time": 15.8,
+      "actor": "mom",
+      "action": "look_at",
+      "target": "sofa"
+    },
+    {
       "time": 16.5,
       "actor": "dad",
       "action": "look_at",
       "target": "door_entrance"
+    },
+    {
+      "time": 17.2,
+      "actor": "son",
+      "action": "laugh"
     },
     {
       "time": 18.0,
@@ -68,18 +94,30 @@
       }
     },
     {
-      "time": 20.5,
+      "time": 19.0,
+      "actor": "mom",
+      "action": "say",
+      "params": {
+        "text": "Em với hai con đứng đây từ lúc anh vừa bật TV đấy!"
+      }
+    },
+    {
+      "time": 21.2,
       "actor": "dad",
       "action": "say",
       "params": {
-        "text": "Ủa... em về lúc nào thế?!"
+        "text": "Ủa... cả nhà về lúc nào thế?!"
       }
     },
     {
       "time": 23.0,
-      "actor": "dad",
-      "action": "look_at",
-      "target": "coffee_table"
+      "actor": "daughter",
+      "action": "laugh"
+    },
+    {
+      "time": 24.0,
+      "actor": "mom",
+      "action": "laugh"
     }
   ]
 }
