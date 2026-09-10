@@ -1,311 +1,514 @@
-﻿# Plan – AI 3D Family Animation Engine
-## Character Prototype Execution Plan
+﻿# Plan – AI 3D Story Animation Engine
 
-> **Mục tiêu:** Hoàn thành Character Runtime Vertical Slice (Dad + Living Room)
-> **Nguyên tắc:** Mỗi milestone phải stable trước khi sang milestone tiếp theo.
-
----
-
-## Tổng quan Milestones
-
-| #   | Milestone                      | Status     | Ước lượng |
-|-----|--------------------------------|------------|-----------|
-| M1  | Project Setup                  | ⬜ TODO    | 30 phút   |
-| M2  | Load GLB Character             | ⬜ TODO    | 1–2 giờ   |
-| M3  | Animation Controller           | ⬜ TODO    | 1–2 giờ   |
-| M4  | Character State Machine        | ⬜ TODO    | 1 giờ     |
-| M5  | Motion Controller + walkTo     | ⬜ TODO    | 2–3 giờ   |
-| M6  | Living Room Scene              | ⬜ TODO    | 1–2 giờ   |
-| M7  | Camera Controller              | ⬜ TODO    | 1 giờ     |
-| M8  | Timeline Engine                | ⬜ TODO    | 2 giờ     |
-| M9  | Emotion Controller             | ⬜ TODO    | 1–2 giờ   |
-| M10 | Dialogue / TTS Abstraction     | ⬜ TODO    | 1 giờ     |
-| M11 | UI Debug Panel                 | ⬜ TODO    | 2 giờ     |
-
-**Status legend:** ⬜ TODO · 🔄 IN PROGRESS · ✅ DONE · 🔴 BLOCKED
+> **Vision:** A programmable 3D character runtime for AI-generated family comedy stories.
+> **Nguyên tắc:** Mỗi milestone phải stable và có Definition of Done rõ ràng trước khi sang milestone tiếp theo.
 
 ---
 
-## M1 – Project Setup
+## Roadmap Overview
 
-**Goal:** React + TypeScript + Vite + Three.js chạy được, render một cube xoay.
+```
+AI 3D STORY ANIMATION ENGINE
+│
+├── PHASE 0 — Foundation
+│   ├── M0.1 Project Setup
+│   ├── M0.2 Engine Skeleton
+│   └── M0.3 Basic 3D Viewport
+│
+├── PHASE 1 — Character Runtime
+│   ├── M1.1 Character Loader
+│   ├── M1.2 Animation Controller
+│   ├── M1.3 State Machine
+│   ├── M1.4 Motion Controller
+│   └── M1.5 Emotion System
+│
+├── PHASE 2 — Scene & Cinematic Runtime
+│   ├── M2.1 Living Room
+│   ├── M2.2 Camera Controller
+│   ├── M2.3 Timeline Engine
+│   └── M2.4 Scene Graph
+│
+├── PHASE 3 — 🚀 PROTOTYPE v0.1
+│   └── M3.1 Complete 20–30s Family Scene
+│
+├── PHASE 4 — Engine Hardening
+│   ├── M4.1 Generic Character API
+│   ├── M4.2 Data-driven Scene
+│   ├── M4.3 Behavior System
+│   └── M4.4 Debug / Editor
+│
+├── PHASE 5 — Family System
+│   ├── M5.1 Dad
+│   ├── M5.2 Mom
+│   ├── M5.3 Son
+│   ├── M5.4 Daughter
+│   └── M5.5 Relationship System
+│
+├── PHASE 6 — Story Engine
+│   ├── M6.1 Story Graph
+│   ├── M6.2 Comedy Engine
+│   ├── M6.3 Scene Planner
+│   └── M6.4 Story → Timeline
+│
+└── PHASE 7 — AI Story Generation
+    ├── M7.1 Story Agent
+    ├── M7.2 Director Agent
+    ├── M7.3 Character Behavior Agent
+    └── M7.4 Prompt → 3D Animation
+```
+
+---
+
+## Status Legend
+
+| Symbol | Ý nghĩa      |
+|--------|--------------|
+| ⬜     | TODO         |
+| 🔄     | IN PROGRESS  |
+| ✅     | DONE         |
+| 🔴     | BLOCKED      |
+| ⏸️     | PAUSED       |
+
+---
+
+# PHASE 0 — Foundation
+
+> **Mục tiêu:** Dựng nền tảng kỹ thuật: project scaffold, engine skeleton, viewport hoạt động.
+
+---
+
+## M0.1 — Project Setup
+
+**Status:** ⬜ TODO
+
+**Goal:** Vite + React + TypeScript + Three.js chạy được. Folder structure đúng chuẩn.
 
 ### Tasks
 
-- [ ] Tạo project bằng Vite: `npm create vite@latest family-animation -- --template react-ts`
-- [ ] Install dependencies: `npm install three zustand`
-- [ ] Install dev deps: `npm install -D @types/three`
-- [ ] Cấu hình `tsconfig.json` với path aliases (`@engine`, `@ui`, `@store`, ...)
-- [ ] Cấu hình `vite.config.ts` với aliases + `assetsInclude: ['**/*.glb']`
-- [ ] Tạo folder structure theo `struct.md`
-- [ ] Tạo `SceneManager.ts` cơ bản: init renderer, scene, camera, render loop
-- [ ] Mount canvas trong `Viewport.tsx`
-- [ ] Render một rotating cube để xác nhận Three.js hoạt động
-- [ ] Xóa cube test, commit
+- [ ] `npm create vite@latest family-animation -- --template react-ts`
+- [ ] `npm install three zustand`
+- [ ] `npm install -D @types/three`
+- [ ] Cấu hình `tsconfig.json` với path aliases:
+  - `@engine/*` → `src/engine/*`
+  - `@characters/*` → `src/characters/*`
+  - `@scenes/*` → `src/scenes/*`
+  - `@ui/*` → `src/ui/*`
+  - `@store/*` → `src/store/*`
+  - `@hooks/*` → `src/hooks/*`
+- [ ] Cấu hình `vite.config.ts` với aliases + `assetsInclude: ['**/*.glb', '**/*.gltf']`
+- [ ] Tạo folder structure đầy đủ theo `struct.md`
+- [ ] Xóa boilerplate mặc định của Vite
 
 ### Definition of Done
-> ✅ Mở browser thấy canvas Three.js, không có console error.
+> ✅ `npm run dev` chạy không lỗi. Folder structure đúng. TypeScript path aliases resolve được.
 
 ---
 
-## M2 – Load GLB Character
+## M0.2 — Engine Skeleton
 
-**Goal:** Load GLB character model vào scene, hiển thị đúng vị trí, scale.
+**Status:** ⬜ TODO
+
+**Goal:** Tạo toàn bộ interfaces và type definitions. Code chưa implement, chỉ cần compile được.
 
 ### Tasks
 
-- [ ] Tìm / chuẩn bị GLB asset (Mixamo hoặc mock humanoid)
-- [ ] Đặt file vào `public/assets/characters/dad/dad.glb`
-- [ ] Tạo `CharacterDefinition.ts` – interface đầy đủ (xem `data_model.md`)
-- [ ] Tạo `dad.definition.ts` – điền thông tin Dad
-- [ ] Tạo `CharacterFactory.ts` – method `create(definition)` dùng `GLTFLoader`
-- [ ] Add character vào scene tại vị trí (0, 0, 0)
-- [ ] Kiểm tra scale, rotation đúng (character đứng thẳng, không bị lật)
-- [ ] Setup lighting (AmbientLight + DirectionalLight) để model không bị tối
-- [ ] Thêm Grid helper để debug position
+- [ ] `engine/character/CharacterDefinition.ts` — interfaces đầy đủ
+- [ ] `engine/character/CharacterState.ts` — `BehaviorState`, `CharacterRuntimeState`
+- [ ] `engine/character/Character.ts` — `ICharacterController` interface
+- [ ] `engine/behavior/Behavior.ts` — `Behavior`, `BehaviorContext` interfaces
+- [ ] `engine/animation/AnimationDefinition.ts` — `AnimationName`, `AnimationDefinition`
+- [ ] `engine/emotion/EmotionDefinition.ts` — `EmotionType`, `EmotionDefinition`, `BoneOverride`
+- [ ] `engine/scene/SceneObject.ts` — `SceneObjectConfig`, `SceneConfig`
+- [ ] `engine/timeline/TimelineEvent.ts` — `TimelineEvent`, `ActionType`
+- [ ] `store/characterStore.ts` — Zustand store (empty state)
+- [ ] `types/index.ts` — re-export tất cả public types
+- [ ] Chạy `npm run type-check` — không có lỗi TypeScript
 
 ### Definition of Done
-> ✅ Thấy character 3D đứng trong scene, có lighting cơ bản.
+> ✅ `tsc --noEmit` pass. Tất cả interfaces được định nghĩa theo `data_model.md`.
 
 ---
 
-## M3 – Animation Controller
+## M0.3 — Basic 3D Viewport
 
-**Goal:** Character chạy idle animation, có thể switch sang walk/sit.
+**Status:** ⬜ TODO
+
+**Goal:** Canvas Three.js render được, có lighting, có OrbitControls để debug.
 
 ### Tasks
 
-- [ ] Tạo `AnimationDefinition.ts` – type `AnimationName`, interface `AnimationDefinition`
-- [ ] Tạo `AnimationController.ts`:
-  - [ ] Constructor nhận `AnimationMixer` + `AnimationClip[]` + `AnimationDefinition[]`
-  - [ ] Method `play(name, options?)` – play/loop animation
-  - [ ] Method `crossFadeTo(name, duration?)` – smooth transition
-  - [ ] Method `update(delta)` – advance mixer
-  - [ ] Method `isPlaying(name)` – check current
-- [ ] Map animation clips từ GLB vào `AnimationName` trong `dad.definition.ts`
-- [ ] Tích hợp vào `CharacterFactory.create()` – tạo AnimationController cho Dad
-- [ ] Test: idle animation loop
-- [ ] Test: crossFade idle → walk → idle
-- [ ] Test: one-shot sit animation (clampWhenFinished)
+- [ ] Tạo `engine/scene/SceneManager.ts`:
+  - [ ] `setup(canvas)` — init WebGLRenderer, Scene, Camera
+  - [ ] `startRenderLoop()` — requestAnimationFrame loop với delta
+  - [ ] `stopRenderLoop()`
+  - [ ] Resize observer
+- [ ] `ui/Viewport.tsx` — mount canvas, gọi SceneManager.setup()
+- [ ] Thêm AmbientLight + DirectionalLight cơ bản
+- [ ] Thêm GridHelper để debug position
+- [ ] Thêm OrbitControls (Three.js addons) để xoay camera khi dev
+- [ ] `App.tsx` — layout skeleton (sidebar + viewport + bottom panel)
 
 ### Definition of Done
-> ✅ Character chạy idle. Có thể call `animController.crossFadeTo('walk')` và thấy transition mượt.
+> ✅ Mở browser thấy canvas với grid, có thể xoay camera bằng chuột. Không có console error.
 
 ---
 
-## M4 – Character State Machine
+# PHASE 1 — Character Runtime
 
-**Goal:** State machine validate transitions, emit events để UI và behaviors phản ứng.
+> **Mục tiêu:** Dad có thể load, animate, di chuyển, và express emotion trong 3D scene.
+
+---
+
+## M1.1 — Character Loader
+
+**Status:** ⬜ TODO
+
+**Goal:** Load GLB character vào scene đúng vị trí, scale, orientation.
 
 ### Tasks
 
-- [ ] Tạo `CharacterState.ts` – type `BehaviorState`, interface `CharacterRuntimeState`
-- [ ] Tạo `StateMachine.ts`:
+- [ ] Chuẩn bị asset:
+  - [ ] Option A: Download từ Mixamo (fbx → blender → export glb)
+  - [ ] Option B: Mock humanoid (BoxGeometry + SphereGeometry)
+  - [ ] Đặt vào `public/assets/characters/dad/dad.glb`
+- [ ] `characters/dad/dad.definition.ts` — `dadDefinition: CharacterDefinition`
+- [ ] `engine/character/CharacterFactory.ts`:
+  - [ ] `create(definition)` → Promise<ICharacterController>
+  - [ ] `GLTFLoader.load(asset)` — async load GLB
+  - [ ] Add model vào scene
+  - [ ] Fix scale/rotation nếu cần
+- [ ] Setup lighting cho character rõ mặt (DirectionalLight shadow)
+- [ ] Test: character hiển thị đúng tại (0, 0, 0)
+
+### Definition of Done
+> ✅ Thấy character 3D đứng trong scene, có shadow, đúng scale và orientation.
+
+---
+
+## M1.2 — Animation Controller
+
+**Status:** ⬜ TODO
+
+**Goal:** Abstraction cho AnimationMixer. Play, crossFade, loop, one-shot.
+
+### Tasks
+
+- [ ] `engine/animation/AnimationController.ts`:
+  - [ ] Constructor: `(mixer, clips[], definitions[])`
+  - [ ] `play(name, options?)` — play với loop config
+  - [ ] `crossFadeTo(name, duration?)` — smooth transition
+  - [ ] `stop(name?)`
+  - [ ] `isPlaying(name)` — boolean
+  - [ ] `update(delta)` — advance mixer
+- [ ] Map animation clips từ GLB vào `AnimationName` trong dad.definition.ts
+- [ ] Tích hợp vào `CharacterFactory.create()`
+- [ ] Test: idle loop
+- [ ] Test: crossFade idle ↔ walk (0.3s)
+- [ ] Test: one-shot sit (`clampWhenFinished: true`)
+
+### Transition Table
+
+| From  | To    | Duration | Type        |
+|-------|-------|----------|-------------|
+| idle  | walk  | 0.3s     | crossFadeTo |
+| walk  | idle  | 0.3s     | crossFadeTo |
+| idle  | sit   | 0.2s     | crossFadeTo |
+| sit   | stand | 0.3s     | crossFadeTo |
+| idle  | talk  | 0.1s     | crossFadeTo |
+| talk  | idle  | 0.3s     | crossFadeTo |
+
+### Definition of Done
+> ✅ Idle animation loop. CrossFade sang walk mượt. Sit không loop (clamp at end).
+
+---
+
+## M1.3 — State Machine
+
+**Status:** ⬜ TODO
+
+**Goal:** Validate state transitions. Emit events khi state change.
+
+### Tasks
+
+- [ ] `engine/behavior/StateMachine.ts`:
   - [ ] Define valid transitions map
-  - [ ] Method `transition(to)` – validate + execute
-  - [ ] Method `canTransition(to)` – check without executing
-  - [ ] Method `getState()` – current state
-  - [ ] Event emitter: `onStateChange(cb)`
-- [ ] Tạo `Behavior.ts` – interface `Behavior`, interface `BehaviorContext`
-- [ ] Tạo `BehaviorManager.ts`:
-  - [ ] Method `execute(behavior)` → Promise
-  - [ ] Method `interrupt()`
-  - [ ] Property `currentBehavior`
-- [ ] Tạo `CharacterController.ts` – implement `ICharacterController` interface:
-  - [ ] `idle()` → BehaviorManager
-  - [ ] `getState()` → CharacterRuntimeState
+  - [ ] `transition(to)` — validate + execute, return boolean
+  - [ ] `canTransition(to)` — check only
+  - [ ] `getState()` — current `BehaviorState`
+  - [ ] `onStateChange(cb)` — event emitter
+- [ ] `engine/behavior/BehaviorManager.ts`:
+  - [ ] `execute(behavior)` → Promise<void>
+  - [ ] `interrupt()`
+  - [ ] `getCurrentBehavior()`
+- [ ] `engine/character/CharacterController.ts`:
+  - [ ] Implement `ICharacterController`
+  - [ ] `idle()` — trigger idle behavior
+  - [ ] `getState()` — return `CharacterRuntimeState`
+- [ ] Tích hợp StateMachine vào BehaviorManager
+- [ ] Test: IDLE → WALKING ✅
+- [ ] Test: WALKING → SITTING ❌ (phải idle trước)
+- [ ] Test: invalid transition bị reject, state không đổi
+
+### State Transitions
+
+```
+IDLE      → WALKING   (walkTo)
+IDLE      → SITTING   (sit)
+IDLE      → TALKING   (say)
+WALKING   → IDLE      (arrived)
+SITTING   → IDLE      (stand)
+TALKING   → IDLE      (speech done)
+any       → LOOKING   (lookAt — parallel, không thay đổi primary state)
+```
 
 ### Definition of Done
-> ✅ Gọi `stateMachine.transition('WALKING')` từ IDLE thành công. Transition invalid bị reject.
+> ✅ State machine validate đúng. Invalid transition bị reject, không crash.
 
 ---
 
-## M5 – Motion Controller + walkTo
+## M1.4 — Motion Controller
 
-**Goal:** `dad.walkTo(target)` → character rotate đúng hướng, đi tới, stop.
+**Status:** ⬜ TODO
+
+**Goal:** `dad.walkTo(target)` → rotate đúng hướng → di chuyển → stop khi tới nơi.
 
 ### Tasks
 
-- [ ] Tạo `MotionController.ts`:
-  - [ ] Constructor nhận `Object3D` + `MovementConfig`
-  - [ ] Method `moveTo(target: Vector3)` → Promise
-  - [ ] Method `rotateTo(direction: Vector3)` → Promise
-  - [ ] Method `stop()`
-  - [ ] Method `update(delta)` – lerp position, lerp rotation, detect arrival
-- [ ] Implement `WalkToBehavior` trong `Behavior.ts`:
-  - [ ] Transition state: IDLE → WALKING
-  - [ ] Call `AnimationController.crossFadeTo('walk')`
-  - [ ] Call `MotionController.moveTo(target)`
-  - [ ] On arrival: crossFade → idle, transition WALKING → IDLE
-- [ ] Implement `CharacterController.walkTo(target)` – delegate to BehaviorManager
+- [ ] `engine/movement/MotionController.ts`:
+  - [ ] Constructor: `(object3D, MovementConfig)`
+  - [ ] `moveTo(target: Vector3)` → Promise<void>
+  - [ ] `rotateTo(direction: Vector3)` → Promise<void>
+  - [ ] `stop()`
+  - [ ] `update(delta)` — lerp position, lerp rotation, arrival detection
+- [ ] `WalkToBehavior` trong `engine/behavior/Behavior.ts`:
+  - [ ] `StateMachine.transition('WALKING')`
+  - [ ] `AnimationController.crossFadeTo('walk')`
+  - [ ] `MotionController.moveTo(target)`
+  - [ ] On arrival: crossFade → idle, transition → IDLE
+  - [ ] Resolve Promise
+- [ ] `CharacterController.walkTo(target)` — delegate to BehaviorManager
+- [ ] `CharacterController.lookAt(target)` — LookAtBehavior (parallel)
+- [ ] `CharacterController.sit()` — SitBehavior
+- [ ] `CharacterController.stand()` — StandBehavior
 - [ ] Test: `await dad.walkTo(new Vector3(3, 0, 0))`
-- [ ] Test: character rotate đúng hướng trước khi đi
-- [ ] Test: arrival detection chính xác
+- [ ] Test: sequence `await dad.walkTo(sofa); await dad.sit()`
 
 ### Definition of Done
-> ✅ `await dad.walkTo(sofa)` → character rotate, walk animation, dừng đúng chỗ, return idle.
+> ✅ `await dad.walkTo(target)` → rotate, walk anim, arrive, idle. Promise resolve đúng lúc.
 
 ---
 
-## M6 – Living Room Scene
+## M1.5 — Emotion System
 
-**Goal:** Living room với Floor, Sofa, TV, CoffeeTable, Lamp. Objects có named IDs.
-
-### Tasks
-
-- [ ] Tạo `SceneObject.ts` – interface `SceneObjectConfig`, `PrimitiveConfig`
-- [ ] Cập nhật `SceneManager.ts`:
-  - [ ] Method `loadEnvironment(config: SceneConfig)`
-  - [ ] Method `getObject(id: string)` → `Object3D | null`
-  - [ ] Method `addCharacter(id, object3D)`
-  - [ ] Registry: `Map<string, Object3D>`
-- [ ] Tạo `livingRoom.ts` – `SceneConfig` với positions:
-  - [ ] Floor: PlaneGeometry 10×10, position (0,0,0)
-  - [ ] Sofa: Box primitive, position (3, 0, 1)
-  - [ ] TV: Box primitive, position (0, 1, -4) – mounted on wall
-  - [ ] CoffeeTable: Box primitive, position (2, 0, -1)
-  - [ ] Lamp: Cylinder primitive, position (-3, 0, 2)
-- [ ] Load scene trong App.tsx startup
-- [ ] Test: `sceneManager.getObject('sofa')` trả về đúng object
-- [ ] Test: `dad.walkTo(sceneManager.getObject('sofa'))` – đi đúng tới sofa
-
-### Definition of Done
-> ✅ Thấy living room với các object. Dad đi được tới sofa khi gọi walkTo.
-
----
-
-## M7 – Camera Controller
-
-**Goal:** Camera static, follow, lookAt. Smooth transition.
-
-### Tasks
-
-- [ ] Tạo `CameraController.ts`:
-  - [ ] Constructor nhận `PerspectiveCamera`
-  - [ ] Method `setStatic(position, lookAt)`
-  - [ ] Method `follow(target: Object3D, offset?: Vector3)` – smooth follow
-  - [ ] Method `lookAt(target: Object3D | Vector3)` – smooth lookAt
-  - [ ] Method `setMode(mode: CameraMode)`
-  - [ ] Method `update(delta)` – lerp camera position/rotation
-- [ ] Default mode: `follow` với Dad, offset (0, 3, 6)
-- [ ] Test: camera follow Dad khi walkTo
-- [ ] Test: `camera.setStatic(pos, lookAt)` – fixed cinematic shot
-- [ ] Test: `camera.lookAt(dad)` – camera xoay smooth
-
-### Definition of Done
-> ✅ Camera follow Dad khi di chuyển. Có thể switch sang static mode.
-
----
-
-## M8 – Timeline Engine
-
-**Goal:** Load JSON timeline, dispatch character API calls đúng thời điểm.
-
-### Tasks
-
-- [ ] Tạo `TimelineEvent.ts` – interface `TimelineEvent`, type `ActionType`
-- [ ] Tạo `Timeline.ts`:
-  - [ ] Method `load(events: TimelineEvent[])`
-  - [ ] Method `play()`
-  - [ ] Method `pause()`
-  - [ ] Method `seek(time: number)`
-  - [ ] Method `reset()`
-  - [ ] Method `update(delta)` – advance time, dispatch events
-  - [ ] Event dispatch: resolve actor → CharacterController → call API
-- [ ] Tạo `livingRoom.timeline.json` – prototype story 25s (xem `runtime_flow.md`)
-- [ ] Test: load JSON, play(), xem Dad thực hiện sequence
-- [ ] Test: pause() dừng đúng chỗ, play() resume
-- [ ] Test: reset() về t=0
-
-### Definition of Done
-> ✅ Play timeline → Dad tự động thực hiện đủ sequence: idle → lookAt TV → walkTo sofa → sit.
-
----
-
-## M9 – Emotion Controller
+**Status:** ⬜ TODO
 
 **Goal:** `dad.setEmotion('embarrassed')` → bone overrides applied smoothly.
 
 ### Tasks
 
-- [ ] Tạo `EmotionDefinition.ts` – type `EmotionType`, interface `EmotionDefinition`, `BoneOverride`
-- [ ] Tạo `EmotionController.ts`:
-  - [ ] Constructor nhận `SkinnedMesh` + `EmotionDefinition[]`
-  - [ ] Method `setEmotion(type: EmotionType)`
-  - [ ] Method `clearEmotion()`
-  - [ ] Method `update(delta)` – lerp bone rotations
-  - [ ] Try: morph targets nếu asset có
-  - [ ] Fallback: bone rotation override
-- [ ] Update `dad.definition.ts` – thêm emotion definitions đầy đủ
-- [ ] Test: `dad.setEmotion('happy')` → thay đổi visible
-- [ ] Test: `dad.setEmotion('embarrassed')` → head tilt down, body slightly back
-- [ ] Test: `dad.setEmotion('neutral')` → reset về pose mặc định
+- [ ] `engine/emotion/EmotionController.ts`:
+  - [ ] Constructor: `(object3D, EmotionDefinition[])`
+  - [ ] `setEmotion(type)` — apply config
+  - [ ] `clearEmotion()` — reset to neutral
+  - [ ] `getCurrentEmotion()`
+  - [ ] `update(delta)` — lerp bone rotations toward target
+- [ ] Implementation priority:
+  1. Morph targets nếu asset có blend shapes
+  2. Bone rotation overrides (head, spine, shoulder)
+  3. Fallback: UI icon overlay
+- [ ] Update `dad.definition.ts` — thêm emotion bone configs
+- [ ] `CharacterController.setEmotion(type)` — delegate to EmotionController
+- [ ] Test: `neutral` → `happy` → `embarrassed` → `neutral`
+- [ ] Kiểm tra lerp smooth (không snap)
+
+### Emotions
+
+| Emotion     | Bone Overrides                                |
+|-------------|-----------------------------------------------|
+| neutral     | Reset all                                     |
+| happy       | Slight chest up, chin up                      |
+| surprised   | Head back, shoulders up                       |
+| confused    | Head tilt left                                |
+| embarrassed | Head down, body slightly back, look away      |
+| angry       | Head forward, shoulders tense                 |
+| sleepy      | Head forward/down, shoulders drooped          |
 
 ### Definition of Done
-> ✅ Gọi setEmotion() thấy pose character thay đổi rõ ràng.
+> ✅ Gọi `setEmotion()` thấy pose character thay đổi rõ ràng với smooth transition.
 
 ---
 
-## M10 – Dialogue / TTS Abstraction
+# PHASE 2 — Scene & Cinematic Runtime
 
-**Goal:** `dad.say("text")` → hiển thị text bubble, optional Web Speech API TTS.
+> **Mục tiêu:** Living room đầy đủ, camera cinematic, timeline declarative hoạt động.
+
+---
+
+## M2.1 — Living Room
+
+**Status:** ⬜ TODO
+
+**Goal:** Scene living room với các objects có named IDs. SceneManager có object registry.
 
 ### Tasks
 
-- [ ] Tạo interface `DialogueController` trong engine
-- [ ] Implement `SayBehavior`:
-  - [ ] Transition state → TALKING
-  - [ ] `AnimationController.crossFadeTo('talk')`
-  - [ ] Hiển thị text (qua store → React UI)
-  - [ ] Optional: `window.speechSynthesis.speak(utterance)` (Web Speech API)
-  - [ ] On complete (timer hoặc TTS end event): transition → IDLE
-- [ ] Update `CharacterStoreState` – thêm `isTalking`, `currentDialogue`
-- [ ] Tạo `DialogueBubble.tsx` – floating text trong UI overlay
-- [ ] Test: `await dad.say("Anh chỉ xem một chút thôi.")` → text hiện, talk anim, tự hết
+- [ ] Cập nhật `engine/scene/SceneManager.ts`:
+  - [ ] `loadEnvironment(config: SceneConfig)` — load tất cả objects
+  - [ ] `getObject(id: string)` → Object3D | null
+  - [ ] `addCharacter(id, object3D)`
+  - [ ] Object registry: `Map<string, Object3D>`
+- [ ] `scenes/living-room/livingRoom.ts` — `SceneConfig`:
+
+| Object      | Position          | Type             |
+|-------------|-------------------|------------------|
+| floor       | (0, 0, 0)         | PlaneGeometry    |
+| sofa        | (3, 0.4, 1)       | Box primitive    |
+| tv          | (0, 1.2, -4)      | Box primitive    |
+| coffee_table| (1.5, 0.3, -0.5)  | Box primitive    |
+| lamp        | (-3, 0, 2)        | Cylinder prim.   |
+
+- [ ] Thêm màu sắc cho từng object (không để grey tất cả)
+- [ ] Test: `sceneManager.getObject('sofa')` → đúng Object3D
+- [ ] Test: `await dad.walkTo(sceneManager.getObject('sofa'))` → Dad đi tới sofa
 
 ### Definition of Done
-> ✅ Gọi say() → thấy text trên screen, character talk animation, text tự mất sau khi xong.
+> ✅ Thấy living room với 5 objects màu sắc khác nhau. Dad đi đúng tới sofa.
 
 ---
 
-## M11 – UI Debug Panel
+## M2.2 — Camera Controller
 
-**Goal:** Debug UI hiển thị state, emotion, position. Buttons trigger behaviors.
+**Status:** ⬜ TODO
+
+**Goal:** Static / follow / lookAt camera với smooth transitions.
 
 ### Tasks
 
-- [ ] Cập nhật `characterStore.ts` – sync đầy đủ từ engine mỗi frame
-- [ ] Tạo `useCharacter.ts` hook – subscribe characterStore
-- [ ] Tạo `useTimeline.ts` hook – subscribe timelineStore
-- [ ] Implement `CharacterPanel.tsx`:
-  - [ ] Character name
-  - [ ] State badge (IDLE / WALKING / SITTING / TALKING)
-  - [ ] Emotion badge
-  - [ ] Position X/Y/Z (2 decimal places)
-- [ ] Implement `ActionPanel.tsx` – buttons:
-  - [ ] [Walk To Sofa]
-  - [ ] [Look At TV]
-  - [ ] [Sit]
-  - [ ] [Stand]
-  - [ ] [Talk]
-  - [ ] [Happy] [Embarrassed] [Neutral] (emotion buttons)
-- [ ] Implement `TimelinePanel.tsx`:
-  - [ ] Play / Pause button
-  - [ ] Time scrubber (slider)
-  - [ ] Current time display
-- [ ] Layout App.tsx theo wireframe trong `required.txt` (section 16)
-- [ ] Test tất cả buttons hoạt động
-- [ ] Test timeline controls hoạt động
+- [ ] `engine/camera/CameraController.ts`:
+  - [ ] Constructor: `(PerspectiveCamera)`
+  - [ ] `setMode(mode: CameraMode)`
+  - [ ] `setStatic(position, lookAt)` — fixed cinematic shot
+  - [ ] `follow(target, offset?)` — smooth follow cam
+  - [ ] `lookAt(target)` — smooth lookAt
+  - [ ] `update(delta)` — lerp camera position và rotation
+- [ ] Default: follow Dad với offset `(0, 3, 6)`
+- [ ] Test: camera follow khi `dad.walkTo()`
+- [ ] Test: `camera.setStatic()` — camera không di chuyển
+- [ ] Test: switch giữa các modes không glitch
+
+### Camera Modes
+
+```
+static   → Fixed position, fixed lookAt
+follow   → Position lerps behind character, lookAt character
+look_at  → Position cố định, rotation lerps toward target
+```
 
 ### Definition of Done
-> ✅ UI hiển thị đúng state real-time. Mọi button trigger đúng behavior. Timeline có thể play/pause/seek.
+> ✅ Camera follow Dad mượt. `setStatic()` lock camera. Không có camera jump khi switch mode.
 
 ---
 
-## Final Check – Definition of Done (Full Prototype)
+## M2.3 — Timeline Engine
 
-Theo `required.txt` section 22, prototype thành công khi:
+**Status:** ⬜ TODO
 
+**Goal:** Load JSON timeline, dispatch Character API calls đúng thời điểm.
+
+### Tasks
+
+- [ ] `engine/timeline/Timeline.ts`:
+  - [ ] `load(events: TimelineEvent[])` hoặc `loadFromJson(json)`
+  - [ ] `play()`
+  - [ ] `pause()`
+  - [ ] `seek(time: number)`
+  - [ ] `reset()`
+  - [ ] `update(delta)` — advance time, dispatch events
+  - [ ] `onEvent(cb)` — hook cho UI
+  - [ ] `registerActor(id, controller)` — link character id → controller
+- [ ] Action dispatcher: switch `event.action` → gọi đúng Character API
+- [ ] `scenes/living-room/livingRoom.timeline.json` — prototype story 25s
+- [ ] Test: `timeline.play()` → Dad tự thực hiện sequence
+- [ ] Test: `timeline.pause()` → dừng đúng chỗ
+- [ ] Test: `timeline.seek(10)` → jump đến t=10s
+
+### Definition of Done
+> ✅ Load JSON timeline, play, Dad tự thực hiện toàn bộ 25s sequence không cần gọi API thủ công.
+
+---
+
+## M2.4 — Scene Graph
+
+**Status:** ⬜ TODO
+
+**Goal:** Scene graph có cấu trúc rõ ràng, hỗ trợ named lookup, parent-child relationships.
+
+### Tasks
+
+- [ ] Refactor `SceneManager` thành scene graph có hierarchy:
+  ```
+  Scene
+  ├── Environment
+  │   ├── floor
+  │   ├── sofa
+  │   ├── tv
+  │   ├── coffee_table
+  │   └── lamp
+  ├── Characters
+  │   └── dad
+  ├── Lights
+  └── Camera
+  ```
+- [ ] `SceneGraph.ts` — typed wrapper cho Three.js scene hierarchy
+- [ ] Hỗ trợ `getNode(path)` → Object3D, ví dụ `getNode('Environment/sofa')`
+- [ ] Hỗ trợ `getAllCharacters()` → Character list
+- [ ] Position anchors: define named positions (sofa_sit_pos, tv_look_pos, ...)
+
+### Definition of Done
+> ✅ Scene có hierarchy rõ ràng. Named lookup hoạt động. Position anchors đúng.
+
+---
+
+# PHASE 3 — 🚀 PROTOTYPE v0.1
+
+> **Mục tiêu:** Demo hoàn chỉnh 20–30s. Chứng minh toàn bộ Character Runtime hoạt động.
+
+---
+
+## M3.1 — Complete 20–30s Family Scene
+
+**Status:** ⬜ TODO
+
+**Goal:** Full story sequence chạy tự động. UI debug panel đầy đủ. Definition of Done từ `required.txt`.
+
+### Tasks
+
+#### Story Sequence (25s)
+- [ ] `t=0s` Dad đứng, idle animation
+- [ ] `t=1s` Dad nhìn TV (`lookAt`)
+- [ ] `t=2s` Dad đi tới sofa (`walkTo`)
+- [ ] `t=5.5s` Dad quay về phía sofa
+- [ ] `t=6s` Dad ngồi xuống (`sit`)
+- [ ] `t=8s` Dad nhìn TV (`lookAt`)
+- [ ] `t=10s` Dad nói: *"Anh chỉ xem một chút thôi."*
+- [ ] `t=13s` Dad cười (`laugh`)
+- [ ] `t=15s` Mom placeholder xuất hiện ở cửa phòng
+- [ ] `t=17s` Dad nhìn Mom (`lookAt`)
+- [ ] `t=18s` Dad chuyển emotion → `embarrassed`
+- [ ] `t=20s` Dad nhìn sang hướng khác
+
+#### UI Debug Panel
+- [ ] `CharacterPanel.tsx` — State, Emotion, Position X/Y/Z
+- [ ] `ActionPanel.tsx` — buttons: Walk To Sofa, Look At TV, Sit, Stand, Talk, Laugh
+- [ ] Emotion buttons: Happy, Surprised, Embarrassed, Neutral
+- [ ] `TimelinePanel.tsx` — Play/Pause, time scrubber, current time
+
+#### Dialogue System
+- [ ] Text bubble UI overlay khi Dad nói
+- [ ] Optional: Web Speech API TTS
+- [ ] Duration: text hiển thị đủ lâu để đọc được
+
+#### Final Checklist (từ `required.txt` section 22)
 - [ ] 1. Living room 3D hiển thị
 - [ ] 2. Dad xuất hiện trong scene
 - [ ] 3. Dad có idle animation
@@ -325,11 +528,239 @@ Theo `required.txt` section 22, prototype thành công khi:
 - [ ] 17. Không có logic quan trọng trong React UI
 - [ ] 18. Có thể thêm Mom mà không sửa engine
 
+### Definition of Done
+> ✅ Mở browser → Play → xem 25s scene chạy tự động. 18/18 checklist pass.
+
+---
+
+# PHASE 4 — Engine Hardening
+
+> **Mục tiêu:** Engine production-ready. Generic, data-driven, debuggable.
+
+---
+
+## M4.1 — Generic Character API
+
+**Status:** ⬜ TODO
+
+- [ ] Hoàn thiện `CharacterFactory` — load bất kỳ CharacterDefinition
+- [ ] Unit test cho `CharacterFactory.create()`
+- [ ] Test: `factory.create(momDefinition)` → Mom controller hoạt động (chưa cần asset)
+- [ ] Error handling: asset không tìm thấy, animation clip thiếu
+
+---
+
+## M4.2 — Data-driven Scene
+
+**Status:** ⬜ TODO
+
+- [ ] Scene hoàn toàn từ JSON config (không hardcode trong TS)
+- [ ] Hỗ trợ load GLB prop assets (sofa.glb, tv.glb, ...)
+- [ ] Hot-reload scene config trong dev mode
+
+---
+
+## M4.3 — Behavior System
+
+**Status:** ⬜ TODO
+
+- [ ] Behavior queue (không chỉ interrupt)
+- [ ] Behavior priority (urgent behaviors interrupt thấp hơn)
+- [ ] Composite behaviors: `WalkThenSit`, `LookThenTalk`
+- [ ] Custom behaviors per character (dad.behaviors.ts)
+
+---
+
+## M4.4 — Debug / Editor
+
+**Status:** ⬜ TODO
+
+- [ ] Scene hierarchy viewer trong UI
+- [ ] Real-time bone inspector
+- [ ] Animation timeline scrubber per animation clip
+- [ ] Performance stats (FPS, draw calls)
+- [ ] Hot-reload timeline JSON trong dev mode
+
+---
+
+# PHASE 5 — Family System
+
+> **Mục tiêu:** 4 characters với personalities riêng biệt. Multi-character interaction.
+
+---
+
+## M5.1 — Dad ✅ (từ Phase 1–3)
+
+- [ ] Polish asset chất lượng cao hơn
+- [ ] Thêm animations: sneak, scratch_head, look_away
+- [ ] Mở rộng emotion set
+
+---
+
+## M5.2 — Mom
+
+**Status:** ⬜ TODO
+
+- [ ] `mom.definition.ts` — traits: `strict`, `principled`, `caring`
+- [ ] Mom GLB asset (rigged, animations)
+- [ ] Mom-specific behaviors: `scold`, `assign_chore`, `approve`, `disapprove`
+- [ ] `factory.create(momDefinition)` → Mom controller
+
+---
+
+## M5.3 — Son
+
+**Status:** ⬜ TODO
+
+- [ ] `son.definition.ts` — traits: `loyal_to_dad`, `playful`, `easily_influenced`
+- [ ] Son GLB asset (child proportions)
+- [ ] Son-specific behaviors: `defend_dad`, `agree_with_dad`, `play`
+
+---
+
+## M5.4 — Daughter
+
+**Status:** ⬜ TODO
+
+- [ ] `daughter.definition.ts` — traits: `smart`, `mischievous`, `observant`
+- [ ] Daughter GLB asset (child proportions)
+- [ ] Daughter-specific behaviors: `tattle_on_dad`, `observe`, `giggle`
+
+---
+
+## M5.5 — Relationship System
+
+**Status:** ⬜ TODO
+
+- [ ] `RelationshipGraph` — model quan hệ giữa characters
+- [ ] Multi-character behaviors: `two_shot_conversation`, `group_reaction`
+- [ ] Character nhận biết nhau (Dad nhìn Mom → embarrassed tự động)
+- [ ] Proximity detection: characters cách nhau bao nhiêu → trigger reactions
+
+---
+
+# PHASE 6 — Story Engine
+
+> **Mục tiêu:** Tạo story từ high-level script, compile thành Timeline JSON.
+
+---
+
+## M6.1 — Story Graph
+
+**Status:** ⬜ TODO
+
+- [ ] `StoryGraph` — directed graph của story beats
+- [ ] Node types: `setup`, `conflict`, `reaction`, `resolution`, `punchline`
+- [ ] Story beat → Scene actions mapping
+- [ ] Declarative story format (JSON/YAML)
+
+---
+
+## M6.2 — Comedy Engine
+
+**Status:** ⬜ TODO
+
+- [ ] Comedy timing rules (setup → beat → punchline timing)
+- [ ] Character personality → behavior selection
+- [ ] Surprise / embarrassment reaction chains
+- [ ] Comedy beat templates: `caught_red_handed`, `failed_escape`, `innocent_betrayal`
+
+---
+
+## M6.3 — Scene Planner
+
+**Status:** ⬜ TODO
+
+- [ ] Story beats → Camera shots
+- [ ] Character positioning cho từng shot
+- [ ] Pacing: slow scenes vs fast comedy moments
+- [ ] Shot selection: wide, medium, close-up, two-shot
+
+---
+
+## M6.4 — Story → Timeline
+
+**Status:** ⬜ TODO
+
+- [ ] Compiler: `StoryGraph` → `TimelineEvent[]` JSON
+- [ ] Auto-calculate timing dựa trên animation durations
+- [ ] Multi-character timeline (Dad + Mom + Son + Daughter)
+
+---
+
+# PHASE 7 — AI Story Generation
+
+> **Mục tiêu:** User nhập prompt → AI generate → 3D animation tự động render.
+
+---
+
+## M7.1 — Story Agent
+
+**Status:** ⬜ TODO
+
+- [ ] LLM integration (Gemini API)
+- [ ] User prompt → Story beats (JSON)
+- [ ] Character personality constraints trong prompt
+- [ ] Output schema validation
+
+---
+
+## M7.2 — Director Agent
+
+**Status:** ⬜ TODO
+
+- [ ] Story beats → Scene Plan (camera, timing, character positions)
+- [ ] Shot list generation
+- [ ] Pacing và comedy timing optimization
+
+---
+
+## M7.3 — Character Behavior Agent
+
+**Status:** ⬜ TODO
+
+- [ ] Story context → Character API calls
+- [ ] Personality-consistent behavior selection
+- [ ] Dialogue generation cho từng character
+
+---
+
+## M7.4 — Prompt → 3D Animation
+
+**Status:** ⬜ TODO
+
+- [ ] End-to-end pipeline: User types → AI generates → Engine renders
+- [ ] `POST /api/generate` → `{ storyGraph, timeline }` → Browser plays
+- [ ] Preview mode: xem trước trước khi render
+- [ ] Export: record canvas → video file
+
+---
+
+## Commit Convention
+
+```
+feat(m0.1): project setup vite + typescript
+feat(m0.2): engine skeleton interfaces
+feat(m0.3): basic 3d viewport
+feat(m1.1): character loader glb
+feat(m1.2): animation controller crossfade
+feat(m1.3): state machine
+feat(m1.4): motion controller walktotarget
+feat(m1.5): emotion system bone override
+feat(m2.1): living room scene
+feat(m2.2): camera controller follow
+feat(m2.3): timeline engine json
+feat(m2.4): scene graph hierarchy
+feat(m3.1): prototype v0.1 complete
+...
+```
+
 ---
 
 ## Notes
 
-- **Thứ tự ưu tiên:** M1 → M2 → M3 → M4 → M5 (core locomotion). Sau đó M6 → M7 → M8 → M9 → M10 → M11.
-- **Không skip milestone.** Nếu M3 (animation) chưa ổn thì M5 (walkTo) sẽ lỗi.
-- **Asset blocker:** Nếu không có GLB phù hợp, dùng mock primitive (box + sphere) để unblock M2–M5, sau đó swap asset.
-- **Commit sau mỗi milestone** với message: `feat(m1): project setup`, `feat(m2): load glb character`, ...
+- **Phase 0–3:** Tập trung hoàn toàn. Đây là foundation của toàn bộ hệ thống.
+- **Phase 4:** Không bỏ qua. Nếu engine không generic thì Phase 5 sẽ phải rewrite.
+- **Phase 5–7:** Có thể làm parallel nếu đủ resource.
+- **Asset strategy:** Dùng Mixamo free assets cho Phase 0–3. Upgrade asset quality ở Phase 4+.
+- **Không nhảy sang Phase 7** cho đến khi Phase 3 PROTOTYPE v0.1 chạy stable.
