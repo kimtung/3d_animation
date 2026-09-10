@@ -41,6 +41,7 @@ export const dadDefinition: CharacterDefinition = {
     { name: "sit", clipName: "sit", loop: false, defaultTransitionDuration: 0.2 },
     { name: "stand", clipName: "stand", loop: false, defaultTransitionDuration: 0.3 },
     { name: "talk", clipName: "talk", loop: true, defaultTransitionDuration: 0.1 },
+    { name: "laugh", clipName: "laugh", loop: true, defaultTransitionDuration: 0.2 },
   ],
 
   emotions: [

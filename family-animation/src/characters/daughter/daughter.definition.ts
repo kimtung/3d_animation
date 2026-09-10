@@ -28,10 +28,13 @@ export const daughterDefinition: CharacterDefinition = {
 
   defaultEmotion: "happy",
 
-  capabilities: ["look_at", "laugh", "idle"],
+  capabilities: ["walk", "look_at", "talk", "laugh", "idle"],
 
   animations: [
     { name: "idle", clipName: "idle", loop: true, defaultTransitionDuration: 0.3 },
+    { name: "walk", clipName: "walk", loop: true, defaultTransitionDuration: 0.3 },
+    { name: "talk", clipName: "talk", loop: true, defaultTransitionDuration: 0.1 },
+    { name: "laugh", clipName: "laugh", loop: true, defaultTransitionDuration: 0.2 },
   ],
 
   emotions: [

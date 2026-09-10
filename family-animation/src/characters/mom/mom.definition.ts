@@ -36,6 +36,9 @@ export const momDefinition: CharacterDefinition = {
     { name: "idle", clipName: "idle", loop: true, defaultTransitionDuration: 0.3 },
     { name: "walk", clipName: "walk", loop: true, defaultTransitionDuration: 0.3 },
     { name: "talk", clipName: "talk", loop: true, defaultTransitionDuration: 0.1 },
+    { name: "laugh", clipName: "laugh", loop: true, defaultTransitionDuration: 0.2 },
+    { name: "sit", clipName: "sit", loop: false, defaultTransitionDuration: 0.2 },
+    { name: "stand", clipName: "stand", loop: false, defaultTransitionDuration: 0.3 },
   ],
 
   emotions: [

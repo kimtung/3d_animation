@@ -1,4 +1,4 @@
-﻿// Polyfill browser globals needed by three/addons/exporters/GLTFExporter in node
+// Polyfill browser globals needed by three/addons/exporters/GLTFExporter in node
 class MockFileReader {
   readAsArrayBuffer(blob) {
     blob.arrayBuffer().then((buf) => {
@@ -28,6 +28,18 @@ function exportModel(scene, clips, outRelPath) {
     (err) => console.error("Export error:", err),
     { binary: true, animations: clips }
   );
+}
+
+function makeRotTrack(boneName, times, eulers) {
+  const values = [];
+  const q = new THREE.Quaternion();
+  const e = new THREE.Euler();
+  for (const [x, y, z] of eulers) {
+    e.set(x, y, z);
+    q.setFromEuler(e);
+    values.push(q.x, q.y, q.z, q.w);
+  }
+  return new THREE.QuaternionKeyframeTrack(`${boneName}.quaternion`, times, values);
 }
 
 // ============================================================
@@ -210,27 +222,171 @@ function generateMom() {
 
   rootGroup.add(rootBone);
 
-  // Animations
+  // Expressive Animations for Mom
   const idleTracks = [
-    new THREE.VectorKeyframeTrack("Spine.position", [0, 1, 2], [0, 0.88, 0, 0, 0.89, 0, 0, 0.88, 0]),
-    new THREE.QuaternionKeyframeTrack("Arm_L.quaternion", [0, 1, 2], [0, 0, 0.05, 0.99, 0, 0, 0.08, 0.99, 0, 0, 0.05, 0.99]),
-    new THREE.QuaternionKeyframeTrack("Arm_R.quaternion", [0, 1, 2], [0, 0, -0.05, 0.99, 0, 0, -0.08, 0.99, 0, 0, -0.05, 0.99]),
-    new THREE.QuaternionKeyframeTrack("Head.quaternion", [0, 1, 2], [0, 0, 0, 1, 0.02, 0, 0, 0.99, 0, 0, 0, 1])
+    new THREE.VectorKeyframeTrack("Spine.position", [0, 1.0, 2.0], [
+      0, 0.88, 0,
+      0, 0.91, 0,
+      0, 0.88, 0
+    ]),
+    makeRotTrack("Arm_L", [0, 1.0, 2.0], [
+      [0, 0, 0.06],
+      [0.04, 0, 0.12],
+      [0, 0, 0.06]
+    ]),
+    makeRotTrack("Arm_R", [0, 1.0, 2.0], [
+      [0, 0, -0.06],
+      [0.04, 0, -0.12],
+      [0, 0, -0.06]
+    ]),
+    makeRotTrack("Head", [0, 0.8, 1.5, 2.0], [
+      [0, 0, 0],
+      [0.03, 0.05, 0.02],
+      [-0.02, -0.04, -0.02],
+      [0, 0, 0]
+    ])
   ];
-  const idleClip = new THREE.AnimationClip("idle", 2, idleTracks);
+  const idleClip = new THREE.AnimationClip("idle", 2.0, idleTracks);
 
   const walkTracks = [
-    new THREE.VectorKeyframeTrack("Root.position", [0, 0.25, 0.5, 0.75, 1], [0, 0, 0, 0, 0.06, 0, 0, 0, 0, 0, 0.06, 0, 0, 0, 0]),
-    new THREE.QuaternionKeyframeTrack("Leg_L.quaternion", [0, 0.25, 0.5, 0.75, 1], [0.28, 0, 0, 0.96, 0, 0, 0, 1, -0.28, 0, 0, 0.96, 0, 0, 0, 1, 0.28, 0, 0, 0.96]),
-    new THREE.QuaternionKeyframeTrack("Leg_R.quaternion", [0, 0.25, 0.5, 0.75, 1], [-0.28, 0, 0, 0.96, 0, 0, 0, 1, 0.28, 0, 0, 0.96, 0, 0, 0, 1, -0.28, 0, 0, 0.96]),
-    new THREE.QuaternionKeyframeTrack("Arm_L.quaternion", [0, 0.25, 0.5, 0.75, 1], [-0.22, 0, 0.05, 0.97, 0, 0, 0.05, 0.99, 0.22, 0, 0.05, 0.97, 0, 0, 0.05, 0.99, -0.22, 0, 0.05, 0.97]),
-    new THREE.QuaternionKeyframeTrack("Arm_R.quaternion", [0, 0.25, 0.5, 0.75, 1], [0.22, 0, -0.05, 0.97, 0, 0, -0.05, 0.99, -0.22, 0, -0.05, 0.97, 0, 0, -0.05, 0.99, 0.22, 0, -0.05, 0.97])
+    new THREE.VectorKeyframeTrack("Root.position", [0, 0.25, 0.5, 0.75, 1.0], [
+      0, 0, 0,
+      0, 0.09, 0,
+      0, 0, 0,
+      0, 0.09, 0,
+      0, 0, 0
+    ]),
+    makeRotTrack("Leg_L", [0, 0.25, 0.5, 0.75, 1.0], [
+      [0.55, 0, 0],
+      [0, 0, 0],
+      [-0.50, 0, 0],
+      [0, 0, 0],
+      [0.55, 0, 0]
+    ]),
+    makeRotTrack("Leg_R", [0, 0.25, 0.5, 0.75, 1.0], [
+      [-0.50, 0, 0],
+      [0, 0, 0],
+      [0.55, 0, 0],
+      [0, 0, 0],
+      [-0.50, 0, 0]
+    ]),
+    makeRotTrack("Arm_L", [0, 0.25, 0.5, 0.75, 1.0], [
+      [-0.40, 0, 0.10],
+      [0, 0, 0.06],
+      [0.40, 0, 0.10],
+      [0, 0, 0.06],
+      [-0.40, 0, 0.10]
+    ]),
+    makeRotTrack("Arm_R", [0, 0.25, 0.5, 0.75, 1.0], [
+      [0.40, 0, -0.10],
+      [0, 0, -0.06],
+      [-0.40, 0, -0.10],
+      [0, 0, -0.06],
+      [0.40, 0, -0.10]
+    ]),
+    makeRotTrack("Spine", [0, 0.25, 0.5, 0.75, 1.0], [
+      [0.04, 0.05, -0.03],
+      [0.02, 0, 0],
+      [0.04, -0.05, 0.03],
+      [0.02, 0, 0],
+      [0.04, 0.05, -0.03]
+    ]),
   ];
-  const walkClip = new THREE.AnimationClip("walk", 1, walkTracks);
+  const walkClip = new THREE.AnimationClip("walk", 1.0, walkTracks);
+
+  const talkTracks = [
+    makeRotTrack("Head", [0, 0.3, 0.6, 0.9, 1.2, 1.5], [
+      [0, 0, 0],
+      [0.12, 0.07, -0.03],
+      [-0.06, -0.04, 0.02],
+      [0.10, 0.02, 0.03],
+      [-0.04, 0.06, -0.02],
+      [0, 0, 0]
+    ]),
+    makeRotTrack("Arm_R", [0, 0.3, 0.7, 1.1, 1.5], [
+      [0, 0, -0.06],
+      [0.50, 0.18, -0.30],
+      [0.30, 0.35, -0.18],
+      [0.55, 0.12, -0.25],
+      [0, 0, -0.06]
+    ]),
+    makeRotTrack("Arm_L", [0, 0.5, 1.0, 1.5], [
+      [0, 0, 0.06],
+      [0.15, -0.08, 0.15],
+      [0.08, 0, 0.12],
+      [0, 0, 0.06]
+    ]),
+    makeRotTrack("Spine", [0, 0.6, 1.5], [
+      [0, 0, 0],
+      [0.04, 0.03, 0],
+      [0, 0, 0]
+    ])
+  ];
+  const talkClip = new THREE.AnimationClip("talk", 1.5, talkTracks);
+
+  const laughTracks = [
+    new THREE.VectorKeyframeTrack("Spine.position", [0, 0.12, 0.25, 0.37, 0.5, 0.62, 0.75, 0.87, 1.0], [
+      0, 0.88, 0,
+      0, 0.92, 0,
+      0, 0.87, 0,
+      0, 0.92, 0,
+      0, 0.87, 0,
+      0, 0.92, 0,
+      0, 0.87, 0,
+      0, 0.91, 0,
+      0, 0.88, 0
+    ]),
+    makeRotTrack("Head", [0, 0.25, 0.5, 0.75, 1.0], [
+      [0, 0, 0],
+      [-0.25, 0.04, 0.02],
+      [-0.10, -0.04, -0.02],
+      [-0.22, 0.03, 0.02],
+      [0, 0, 0]
+    ]),
+    makeRotTrack("Arm_R", [0, 0.25, 0.5, 0.75, 1.0], [
+      [0, 0, -0.06],
+      [0.45, 0.10, -0.15],
+      [0.35, 0.08, -0.12],
+      [0.45, 0.10, -0.15],
+      [0, 0, -0.06]
+    ]),
+    makeRotTrack("Arm_L", [0, 0.25, 0.5, 0.75, 1.0], [
+      [0, 0, 0.06],
+      [0.20, 0, 0.15],
+      [0.10, 0, 0.10],
+      [0.20, 0, 0.15],
+      [0, 0, 0.06]
+    ]),
+  ];
+  const laughClip = new THREE.AnimationClip("laugh", 1.0, laughTracks);
+
+  const sitTracks = [
+    new THREE.VectorKeyframeTrack("Root.position", [0, 0.5, 1.0], [
+      0, 0, 0,
+      0, -0.20, -0.10,
+      0, -0.42, -0.20
+    ]),
+    makeRotTrack("Leg_L", [0, 1.0], [[0, 0, 0], [1.45, 0, 0]]),
+    makeRotTrack("Leg_R", [0, 1.0], [[0, 0, 0], [1.45, 0, 0]]),
+    makeRotTrack("Spine", [0, 1.0], [[0, 0, 0], [-0.10, 0, 0]]),
+  ];
+  const sitClip = new THREE.AnimationClip("sit", 1.0, sitTracks);
+
+  const standTracks = [
+    new THREE.VectorKeyframeTrack("Root.position", [0, 0.5, 1.0], [
+      0, -0.42, -0.20,
+      0, -0.20, -0.10,
+      0, 0, 0
+    ]),
+    makeRotTrack("Leg_L", [0, 1.0], [[1.45, 0, 0], [0, 0, 0]]),
+    makeRotTrack("Leg_R", [0, 1.0], [[1.45, 0, 0], [0, 0, 0]]),
+    makeRotTrack("Spine", [0, 1.0], [[-0.10, 0, 0], [0, 0, 0]]),
+  ];
+  const standClip = new THREE.AnimationClip("stand", 1.0, standTracks);
 
   const scene = new THREE.Scene();
   scene.add(rootGroup);
-  exportModel(scene, [idleClip, walkClip], "public/assets/characters/mom/mom.glb");
+  exportModel(scene, [idleClip, walkClip, talkClip, laughClip, sitClip, standClip], "public/assets/characters/mom/mom.glb");
 }
 
 // ============================================================
@@ -370,17 +526,143 @@ function generateSon() {
 
   rootGroup.add(rootBone);
 
+  // Expressive Animations for Son
   const idleTracks = [
-    new THREE.VectorKeyframeTrack("Spine.position", [0, 1, 2], [0, 0.55, 0, 0, 0.56, 0, 0, 0.55, 0]),
-    new THREE.QuaternionKeyframeTrack("Arm_L.quaternion", [0, 1, 2], [0, 0, 0.1, 0.99, 0, 0, 0.15, 0.99, 0, 0, 0.1, 0.99]),
-    new THREE.QuaternionKeyframeTrack("Arm_R.quaternion", [0, 1, 2], [0, 0, -0.1, 0.99, 0, 0, -0.15, 0.99, 0, 0, -0.1, 0.99]),
-    new THREE.QuaternionKeyframeTrack("Head.quaternion", [0, 1, 2], [0, 0, 0, 1, 0.04, 0, 0, 0.99, 0, 0, 0, 1])
+    new THREE.VectorKeyframeTrack("Spine.position", [0, 1.0, 2.0], [
+      0, 0.55, 0,
+      0, 0.57, 0,
+      0, 0.55, 0
+    ]),
+    makeRotTrack("Arm_L", [0, 1.0, 2.0], [
+      [0, 0, 0.10],
+      [0.08, 0, 0.18],
+      [0, 0, 0.10]
+    ]),
+    makeRotTrack("Arm_R", [0, 1.0, 2.0], [
+      [0, 0, -0.10],
+      [0.08, 0, -0.18],
+      [0, 0, -0.10]
+    ]),
+    makeRotTrack("Head", [0, 0.7, 1.4, 2.0], [
+      [0, 0, 0],
+      [0.06, 0.08, 0.04],
+      [-0.04, -0.06, -0.02],
+      [0, 0, 0]
+    ])
   ];
-  const idleClip = new THREE.AnimationClip("idle", 2, idleTracks);
+  const idleClip = new THREE.AnimationClip("idle", 2.0, idleTracks);
+
+  const walkTracks = [
+    new THREE.VectorKeyframeTrack("Root.position", [0, 0.25, 0.5, 0.75, 1.0], [
+      0, 0, 0,
+      0, 0.08, 0,
+      0, 0, 0,
+      0, 0.08, 0,
+      0, 0, 0
+    ]),
+    makeRotTrack("Leg_L", [0, 0.25, 0.5, 0.75, 1.0], [
+      [0.65, 0, 0],
+      [0, 0, 0],
+      [-0.55, 0, 0],
+      [0, 0, 0],
+      [0.65, 0, 0]
+    ]),
+    makeRotTrack("Leg_R", [0, 0.25, 0.5, 0.75, 1.0], [
+      [-0.55, 0, 0],
+      [0, 0, 0],
+      [0.65, 0, 0],
+      [0, 0, 0],
+      [-0.55, 0, 0]
+    ]),
+    makeRotTrack("Arm_L", [0, 0.25, 0.5, 0.75, 1.0], [
+      [-0.50, 0, 0.15],
+      [0, 0, 0.10],
+      [0.50, 0, 0.15],
+      [0, 0, 0.10],
+      [-0.50, 0, 0.15]
+    ]),
+    makeRotTrack("Arm_R", [0, 0.25, 0.5, 0.75, 1.0], [
+      [0.50, 0, -0.15],
+      [0, 0, -0.10],
+      [-0.50, 0, -0.15],
+      [0, 0, -0.10],
+      [0.50, 0, -0.15]
+    ]),
+    makeRotTrack("Spine", [0, 0.25, 0.5, 0.75, 1.0], [
+      [0.05, 0.06, -0.04],
+      [0.02, 0, 0],
+      [0.05, -0.06, 0.04],
+      [0.02, 0, 0],
+      [0.05, 0.06, -0.04]
+    ]),
+  ];
+  const walkClip = new THREE.AnimationClip("walk", 1.0, walkTracks);
+
+  const talkTracks = [
+    makeRotTrack("Head", [0, 0.3, 0.6, 0.9, 1.2, 1.5], [
+      [0, 0, 0],
+      [0.18, 0.10, -0.05],
+      [-0.10, -0.06, 0.03],
+      [0.15, 0.04, 0.04],
+      [-0.06, 0.08, -0.03],
+      [0, 0, 0]
+    ]),
+    makeRotTrack("Arm_R", [0, 0.3, 0.7, 1.1, 1.5], [
+      [0, 0, -0.10],
+      [0.60, 0.25, -0.35],
+      [0.40, 0.40, -0.20],
+      [0.65, 0.18, -0.30],
+      [0, 0, -0.10]
+    ]),
+    makeRotTrack("Arm_L", [0, 0.4, 0.8, 1.2, 1.5], [
+      [0, 0, 0.10],
+      [0.35, -0.15, 0.25],
+      [0.20, -0.05, 0.18],
+      [0.30, -0.12, 0.22],
+      [0, 0, 0.10]
+    ]),
+  ];
+  const talkClip = new THREE.AnimationClip("talk", 1.5, talkTracks);
+
+  const laughTracks = [
+    new THREE.VectorKeyframeTrack("Spine.position", [0, 0.12, 0.25, 0.37, 0.5, 0.62, 0.75, 0.87, 1.0], [
+      0, 0.55, 0,
+      0, 0.60, 0,
+      0, 0.54, 0,
+      0, 0.60, 0,
+      0, 0.54, 0,
+      0, 0.60, 0,
+      0, 0.54, 0,
+      0, 0.58, 0,
+      0, 0.55, 0
+    ]),
+    makeRotTrack("Head", [0, 0.25, 0.5, 0.75, 1.0], [
+      [0, 0, 0],
+      [-0.30, 0.08, 0.04],
+      [-0.15, -0.06, -0.03],
+      [-0.28, 0.05, 0.03],
+      [0, 0, 0]
+    ]),
+    makeRotTrack("Arm_R", [0, 0.25, 0.5, 0.75, 1.0], [
+      [0, 0, -0.10],
+      [0.45, 0.15, -0.30],
+      [0.25, 0.10, -0.20],
+      [0.45, 0.15, -0.30],
+      [0, 0, -0.10]
+    ]),
+    makeRotTrack("Arm_L", [0, 0.25, 0.5, 0.75, 1.0], [
+      [0, 0, 0.10],
+      [0.45, -0.15, 0.30],
+      [0.25, -0.10, 0.20],
+      [0.45, -0.15, 0.30],
+      [0, 0, 0.10]
+    ]),
+  ];
+  const laughClip = new THREE.AnimationClip("laugh", 1.0, laughTracks);
 
   const scene = new THREE.Scene();
   scene.add(rootGroup);
-  exportModel(scene, [idleClip], "public/assets/characters/son/son.glb");
+  exportModel(scene, [idleClip, walkClip, talkClip, laughClip], "public/assets/characters/son/son.glb");
 }
 
 // ============================================================
@@ -507,17 +789,143 @@ function generateDaughter() {
 
   rootGroup.add(rootBone);
 
+  // Expressive Animations for Daughter (Toddler)
   const idleTracks = [
-    new THREE.VectorKeyframeTrack("Spine.position", [0, 1, 2], [0, 0.45, 0, 0, 0.46, 0, 0, 0.45, 0]),
-    new THREE.QuaternionKeyframeTrack("Arm_L.quaternion", [0, 1, 2], [0, 0, 0.2, 0.98, 0, 0, 0.25, 0.97, 0, 0, 0.2, 0.98]),
-    new THREE.QuaternionKeyframeTrack("Arm_R.quaternion", [0, 1, 2], [0, 0, -0.2, 0.98, 0, 0, -0.25, 0.97, 0, 0, -0.2, 0.98]),
-    new THREE.QuaternionKeyframeTrack("Head.quaternion", [0, 1, 2], [0, 0, 0, 1, 0.05, 0, 0, 0.99, 0, 0, 0, 1])
+    new THREE.VectorKeyframeTrack("Spine.position", [0, 1.0, 2.0], [
+      0, 0.45, 0,
+      0, 0.47, 0,
+      0, 0.45, 0
+    ]),
+    makeRotTrack("Arm_L", [0, 1.0, 2.0], [
+      [0, 0, 0.20],
+      [0.05, 0, 0.28],
+      [0, 0, 0.20]
+    ]),
+    makeRotTrack("Arm_R", [0, 1.0, 2.0], [
+      [0, 0, -0.20],
+      [0.05, 0, -0.28],
+      [0, 0, -0.20]
+    ]),
+    makeRotTrack("Head", [0, 0.8, 1.6, 2.0], [
+      [0, 0, 0],
+      [0.05, 0.08, 0.04],
+      [-0.03, -0.05, -0.03],
+      [0, 0, 0]
+    ])
   ];
-  const idleClip = new THREE.AnimationClip("idle", 2, idleTracks);
+  const idleClip = new THREE.AnimationClip("idle", 2.0, idleTracks);
+
+  const walkTracks = [
+    new THREE.VectorKeyframeTrack("Root.position", [0, 0.25, 0.5, 0.75, 1.0], [
+      0, 0, 0,
+      0, 0.06, 0,
+      0, 0, 0,
+      0, 0.06, 0,
+      0, 0, 0
+    ]),
+    makeRotTrack("Leg_L", [0, 0.25, 0.5, 0.75, 1.0], [
+      [0.50, 0, 0.08],
+      [0, 0, 0.08],
+      [-0.40, 0, 0.08],
+      [0, 0, 0.08],
+      [0.50, 0, 0.08]
+    ]),
+    makeRotTrack("Leg_R", [0, 0.25, 0.5, 0.75, 1.0], [
+      [-0.40, 0, -0.08],
+      [0, 0, -0.08],
+      [0.50, 0, -0.08],
+      [0, 0, -0.08],
+      [-0.40, 0, -0.08]
+    ]),
+    makeRotTrack("Arm_L", [0, 0.25, 0.5, 0.75, 1.0], [
+      [-0.40, 0, 0.25],
+      [0, 0, 0.22],
+      [0.40, 0, 0.25],
+      [0, 0, 0.22],
+      [-0.40, 0, 0.25]
+    ]),
+    makeRotTrack("Arm_R", [0, 0.25, 0.5, 0.75, 1.0], [
+      [0.40, 0, -0.25],
+      [0, 0, -0.22],
+      [-0.40, 0, -0.25],
+      [0, 0, -0.22],
+      [0.40, 0, -0.25]
+    ]),
+    makeRotTrack("Spine", [0, 0.25, 0.5, 0.75, 1.0], [
+      [0.04, 0, -0.08],
+      [0.02, 0, 0],
+      [0.04, 0, 0.08],
+      [0.02, 0, 0],
+      [0.04, 0, -0.08]
+    ]),
+  ];
+  const walkClip = new THREE.AnimationClip("walk", 1.0, walkTracks);
+
+  const talkTracks = [
+    makeRotTrack("Head", [0, 0.3, 0.6, 0.9, 1.2, 1.5], [
+      [0, 0, 0],
+      [0.15, 0.06, -0.05],
+      [-0.08, -0.04, 0.03],
+      [0.12, 0.03, 0.04],
+      [-0.05, 0.06, -0.03],
+      [0, 0, 0]
+    ]),
+    makeRotTrack("Arm_R", [0, 0.3, 0.7, 1.1, 1.5], [
+      [0, 0, -0.20],
+      [0.55, 0.20, -0.30],
+      [0.35, 0.35, -0.18],
+      [0.58, 0.15, -0.25],
+      [0, 0, -0.20]
+    ]),
+    makeRotTrack("Arm_L", [0, 0.4, 0.8, 1.2, 1.5], [
+      [0, 0, 0.20],
+      [0.35, -0.10, 0.30],
+      [0.20, -0.05, 0.25],
+      [0.35, -0.10, 0.30],
+      [0, 0, 0.20]
+    ]),
+  ];
+  const talkClip = new THREE.AnimationClip("talk", 1.5, talkTracks);
+
+  const laughTracks = [
+    new THREE.VectorKeyframeTrack("Spine.position", [0, 0.12, 0.25, 0.37, 0.5, 0.62, 0.75, 0.87, 1.0], [
+      0, 0.45, 0,
+      0, 0.49, 0,
+      0, 0.44, 0,
+      0, 0.49, 0,
+      0, 0.44, 0,
+      0, 0.49, 0,
+      0, 0.44, 0,
+      0, 0.48, 0,
+      0, 0.45, 0
+    ]),
+    makeRotTrack("Head", [0, 0.25, 0.5, 0.75, 1.0], [
+      [0, 0, 0],
+      [-0.25, 0.06, 0.03],
+      [-0.10, -0.04, -0.02],
+      [-0.22, 0.05, 0.03],
+      [0, 0, 0]
+    ]),
+    makeRotTrack("Arm_R", [0, 0.25, 0.5, 0.75, 1.0], [
+      [0, 0, -0.20],
+      [0.70, 0.10, -0.35],
+      [0.40, 0.05, -0.25],
+      [0.70, 0.10, -0.35],
+      [0, 0, -0.20]
+    ]),
+    makeRotTrack("Arm_L", [0, 0.25, 0.5, 0.75, 1.0], [
+      [0, 0, 0.20],
+      [0.70, -0.10, 0.35],
+      [0.40, -0.05, 0.25],
+      [0.70, -0.10, 0.35],
+      [0, 0, 0.20]
+    ]),
+  ];
+  const laughClip = new THREE.AnimationClip("laugh", 1.0, laughTracks);
 
   const scene = new THREE.Scene();
   scene.add(rootGroup);
-  exportModel(scene, [idleClip], "public/assets/characters/daughter/daughter.glb");
+  exportModel(scene, [idleClip, walkClip, talkClip, laughClip], "public/assets/characters/daughter/daughter.glb");
 }
 
 console.log("Generating Mom, Son, and Daughter GLB models...");

@@ -108,9 +108,13 @@ export class CharacterController implements ICharacterController {
     }
   }
 
+  private lifeTime = Math.random() * 10;
+
   async laugh(): Promise<void> {
     this.setEmotion("happy");
-    await this.say("Haha! 😂");
+    this.animationController.play("laugh", { loop: true });
+    await new Promise((resolve) => setTimeout(resolve, 1600));
+    this.animationController.crossFadeTo("idle", 0.3);
     this.clearEmotion();
   }
 
@@ -141,9 +145,26 @@ export class CharacterController implements ICharacterController {
   }
 
   update(delta: number): void {
+    this.lifeTime += delta;
     this.motionController.update(delta);
     this.animationController.update(delta);
     this.emotionController.update(delta);
+
+    // Living micro-motion layer: natural breathing & organic soft sway
+    if (this.stateMachine.getState() === "IDLE") {
+      const breath = Math.sin(this.lifeTime * 2.4);
+      const sway = Math.cos(this.lifeTime * 1.2);
+
+      const spine = this.object3D.getObjectByName("Spine");
+      if (spine) {
+        spine.position.y += breath * 0.003;
+      }
+
+      const head = this.object3D.getObjectByName("Head");
+      if (head && this.emotionController.getCurrentEmotion() === "neutral") {
+        head.rotation.z += sway * 0.006;
+      }
+    }
   }
 
   dispose(): void {
