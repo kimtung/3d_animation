@@ -103,8 +103,8 @@ export class SceneManager {
     this.sceneGraph.addLight(light);
   }
 
-  private _createObject(cfg: SceneObjectConfig): void {
-    let mesh: THREE.Object3D;
+  private _buildMeshFromConfig(cfg: SceneObjectConfig): THREE.Object3D {
+    let obj: THREE.Object3D;
 
     if (cfg.primitive) {
       let geo: THREE.BufferGeometry;
@@ -113,7 +113,15 @@ export class SceneManager {
       if (p.geometry === "plane") {
         geo = new THREE.PlaneGeometry(p.width ?? 10, p.height ?? 10);
       } else if (p.geometry === "cylinder") {
-        geo = new THREE.CylinderGeometry(p.radius ?? 0.5, p.radius ?? 0.5, p.height ?? 2, 16);
+        const rTop = p.radiusTop ?? p.radius ?? 0.5;
+        const rBottom = p.radiusBottom ?? p.radius ?? 0.5;
+        geo = new THREE.CylinderGeometry(rTop, rBottom, p.height ?? 2, 24);
+      } else if (p.geometry === "sphere") {
+        geo = new THREE.SphereGeometry(p.radius ?? 0.5, 20, 20);
+      } else if (p.geometry === "torus") {
+        geo = new THREE.TorusGeometry(p.radius ?? 0.4, p.tube ?? 0.08, 12, 24);
+      } else if (p.geometry === "cone") {
+        geo = new THREE.ConeGeometry(p.radius ?? 0.5, p.height ?? 1, 24);
       } else {
         // default box
         geo = new THREE.BoxGeometry(p.width ?? 1, p.height ?? 1, p.depth ?? 1);
@@ -121,29 +129,42 @@ export class SceneManager {
 
       const mat = new THREE.MeshStandardMaterial({
         color: new THREE.Color(p.color),
-        roughness: 0.6,
-        metalness: 0.1,
+        roughness: p.roughness ?? 0.6,
+        metalness: p.metalness ?? 0.1,
+        emissive: p.emissive ? new THREE.Color(p.emissive) : new THREE.Color(0x000000),
+        emissiveIntensity: p.emissiveIntensity ?? 1.0,
       });
 
-      mesh = new THREE.Mesh(geo, mat);
+      obj = new THREE.Mesh(geo, mat);
     } else {
-      mesh = new THREE.Group();
+      obj = new THREE.Group();
     }
 
-    mesh.position.set(cfg.position.x, cfg.position.y, cfg.position.z);
+    obj.name = cfg.id;
+    obj.position.set(cfg.position.x, cfg.position.y, cfg.position.z);
     if (cfg.rotation) {
-      mesh.rotation.set(cfg.rotation.x, cfg.rotation.y, cfg.rotation.z);
+      obj.rotation.set(cfg.rotation.x, cfg.rotation.y, cfg.rotation.z);
     }
     if (cfg.scale) {
-      mesh.scale.set(cfg.scale.x, cfg.scale.y, cfg.scale.z);
+      obj.scale.set(cfg.scale.x, cfg.scale.y, cfg.scale.z);
     }
 
-    mesh.castShadow = cfg.castShadow ?? false;
-    mesh.receiveShadow = cfg.receiveShadow ?? false;
+    obj.castShadow = cfg.castShadow ?? false;
+    obj.receiveShadow = cfg.receiveShadow ?? false;
+    obj.userData = { ...cfg };
 
-    // Attach semantic data
-    mesh.userData = { ...cfg };
+    if (cfg.children) {
+      for (const childCfg of cfg.children) {
+        const childObj = this._buildMeshFromConfig(childCfg);
+        obj.add(childObj);
+      }
+    }
 
+    return obj;
+  }
+
+  private _createObject(cfg: SceneObjectConfig): void {
+    const mesh = this._buildMeshFromConfig(cfg);
     this.sceneGraph.addEnvironmentObject(cfg.id, mesh);
   }
 

@@ -2,9 +2,15 @@
 // SceneObject — types for scene configuration
 // ============================================================
 
-import type { Vector3Like } from '@engine/character/CharacterState.ts';
+import type { Vector3Like } from "@engine/character/CharacterState.ts";
 
-export type PrimitiveGeometry = 'box' | 'sphere' | 'cylinder' | 'plane';
+export type PrimitiveGeometry =
+  | "box"
+  | "sphere"
+  | "cylinder"
+  | "plane"
+  | "torus"
+  | "cone";
 
 export interface PrimitiveConfig {
   geometry: PrimitiveGeometry;
@@ -12,7 +18,14 @@ export interface PrimitiveConfig {
   height?: number;
   depth?: number;
   radius?: number;
-  color: string;           // hex, e.g. '#8B4513'
+  radiusTop?: number;
+  radiusBottom?: number;
+  tube?: number;
+  color: string;
+  roughness?: number;
+  metalness?: number;
+  emissive?: string;
+  emissiveIntensity?: number;
 }
 
 export interface SemanticSeatAnchor {
@@ -23,18 +36,19 @@ export interface SemanticSeatAnchor {
 
 export interface SceneObjectConfig {
   id: string;
-  type: 'static_mesh' | 'primitive' | 'placeholder';
-  asset?: string;          // path to GLB (optional)
+  type: "static_mesh" | "primitive" | "placeholder" | "compound";
+  asset?: string;
   position: Vector3Like;
   rotation?: Vector3Like;
   scale?: Vector3Like;
   primitive?: PrimitiveConfig;
+  children?: SceneObjectConfig[];
   seatAnchor?: SemanticSeatAnchor;
   castShadow?: boolean;
   receiveShadow?: boolean;
 }
 
-export type LightType = 'ambient' | 'directional' | 'point' | 'spot';
+export type LightType = "ambient" | "directional" | "point" | "spot";
 
 export interface LightConfig {
   type: LightType;
