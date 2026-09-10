@@ -1,4 +1,4 @@
-﻿// ============================================================
+// ============================================================
 // SceneObject — types for scene configuration
 // ============================================================
 
@@ -15,6 +15,12 @@ export interface PrimitiveConfig {
   color: string;           // hex, e.g. '#8B4513'
 }
 
+export interface SemanticSeatAnchor {
+  seatPosition: Vector3Like;
+  seatRotationY: number; // facing direction when seated
+  entryPosition: Vector3Like; // point in front of seat to walk to
+}
+
 export interface SceneObjectConfig {
   id: string;
   type: 'static_mesh' | 'primitive' | 'placeholder';
@@ -23,6 +29,7 @@ export interface SceneObjectConfig {
   rotation?: Vector3Like;
   scale?: Vector3Like;
   primitive?: PrimitiveConfig;
+  seatAnchor?: SemanticSeatAnchor;
   castShadow?: boolean;
   receiveShadow?: boolean;
 }

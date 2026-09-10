@@ -128,8 +128,11 @@ function App() {
           <button disabled={!_actions} onClick={() => _actions?.lookAtTV()}>
             👀 Look At TV
           </button>
+          <button disabled={!_actions} onClick={() => _actions?.lookAtDoor()}>
+            🚪 Look At Door
+          </button>
           <button disabled={!_actions} onClick={() => _actions?.sit()}>
-            🪑 Sit Down
+            🪑 Sit Down (Sofa)
           </button>
           <button disabled={!_actions} onClick={() => _actions?.stand()}>
             🧍 Stand Up
@@ -139,6 +142,9 @@ function App() {
             onClick={() => _actions?.talk("Anh chỉ xem một chút thôi!")}
           >
             🗣️ Say Dialogue
+          </button>
+          <button disabled={!_actions} onClick={() => _actions?.laugh()}>
+            😂 Laugh
           </button>
           <button disabled={!_actions} onClick={() => _actions?.idle()}>
             ⏸️ Idle

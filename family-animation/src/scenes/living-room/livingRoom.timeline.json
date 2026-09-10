@@ -1,4 +1,4 @@
-﻿{
+{
   "id": "dad_watches_tv",
   "title": "Bố xem TV trộm (25s Prototype Episode)",
   "duration": 25,
@@ -23,7 +23,8 @@
     {
       "time": 6.0,
       "actor": "dad",
-      "action": "sit"
+      "action": "sit",
+      "target": "sofa"
     },
     {
       "time": 8.0,

@@ -1,4 +1,4 @@
-﻿import type { SceneConfig } from "@engine/scene/SceneObject.ts";
+import type { SceneConfig } from "@engine/scene/SceneObject.ts";
 
 export const livingRoomConfig: SceneConfig = {
   id: "living_room",
@@ -43,6 +43,11 @@ export const livingRoomConfig: SceneConfig = {
         height: 0.6,
         depth: 1.0,
         color: "#d97706", // warm mustard/amber sofa
+      },
+      seatAnchor: {
+        entryPosition: { x: 2.2, y: 0, z: 0.0 }, // Stand in front of sofa facing room
+        seatPosition: { x: 2.6, y: 0.0, z: 0.8 }, // Exact sit location
+        seatRotationY: -Math.PI / 2, // Sit facing West toward TV (-X / -Z)
       },
       castShadow: true,
       receiveShadow: true,

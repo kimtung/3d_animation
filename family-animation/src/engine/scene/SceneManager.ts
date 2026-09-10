@@ -1,4 +1,4 @@
-﻿import * as THREE from "three";
+import * as THREE from "three";
 import type { SceneConfig, SceneObjectConfig, LightConfig } from "./SceneObject.ts";
 import { SceneGraph } from "./SceneGraph.ts";
 
@@ -140,6 +140,9 @@ export class SceneManager {
 
     mesh.castShadow = cfg.castShadow ?? false;
     mesh.receiveShadow = cfg.receiveShadow ?? false;
+
+    // Attach semantic data
+    mesh.userData = { ...cfg };
 
     this.sceneGraph.addEnvironmentObject(cfg.id, mesh);
   }

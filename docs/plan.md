@@ -477,56 +477,56 @@ look_at  → Position cố định, rotation lerps toward target
 
 ## M3.1 — Complete 20–30s Family Scene
 
-**Status:** ⬜ TODO
+**Status:** ✅ DONE
 
 **Goal:** Full story sequence chạy tự động. UI debug panel đầy đủ. Definition of Done từ `required.txt`.
 
 ### Tasks
 
 #### Story Sequence (25s)
-- [ ] `t=0s` Dad đứng, idle animation
-- [ ] `t=1s` Dad nhìn TV (`lookAt`)
-- [ ] `t=2s` Dad đi tới sofa (`walkTo`)
-- [ ] `t=5.5s` Dad quay về phía sofa
-- [ ] `t=6s` Dad ngồi xuống (`sit`)
-- [ ] `t=8s` Dad nhìn TV (`lookAt`)
-- [ ] `t=10s` Dad nói: *"Anh chỉ xem một chút thôi."*
-- [ ] `t=13s` Dad cười (`laugh`)
-- [ ] `t=15s` Mom placeholder xuất hiện ở cửa phòng
-- [ ] `t=17s` Dad nhìn Mom (`lookAt`)
-- [ ] `t=18s` Dad chuyển emotion → `embarrassed`
-- [ ] `t=20s` Dad nhìn sang hướng khác
+- [x] `t=0s` Dad đứng, idle animation
+- [x] `t=1s` Dad nhìn TV (`lookAt`)
+- [x] `t=2s` Dad đi tới sofa (`walkTo`)
+- [x] `t=5.5s` Dad quay về phía sofa
+- [x] `t=6s` Dad ngồi xuống (`sit`)
+- [x] `t=8s` Dad nhìn TV (`lookAt`)
+- [x] `t=10s` Dad nói: *"Anh chỉ xem một chút thôi."*
+- [x] `t=13s` Dad cười (`laugh`)
+- [x] `t=15s` Mom placeholder xuất hiện ở cửa phòng
+- [x] `t=17s` Dad nhìn Mom (`lookAt`)
+- [x] `t=18s` Dad chuyển emotion → `embarrassed`
+- [x] `t=20s` Dad nhìn sang hướng khác
 
 #### UI Debug Panel
-- [ ] `CharacterPanel.tsx` — State, Emotion, Position X/Y/Z
-- [ ] `ActionPanel.tsx` — buttons: Walk To Sofa, Look At TV, Sit, Stand, Talk, Laugh
-- [ ] Emotion buttons: Happy, Surprised, Embarrassed, Neutral
-- [ ] `TimelinePanel.tsx` — Play/Pause, time scrubber, current time
+- [x] `CharacterPanel.tsx` — State, Emotion, Position X/Y/Z
+- [x] `ActionPanel.tsx` — buttons: Walk To Sofa, Look At TV, Sit, Stand, Talk, Laugh
+- [x] Emotion buttons: Happy, Surprised, Embarrassed, Neutral
+- [x] `TimelinePanel.tsx` — Play/Pause, time scrubber, current time
 
 #### Dialogue System
-- [ ] Text bubble UI overlay khi Dad nói
-- [ ] Optional: Web Speech API TTS
-- [ ] Duration: text hiển thị đủ lâu để đọc được
+- [x] Text bubble UI overlay khi Dad nói
+- [x] Optional: Web Speech API TTS
+- [x] Duration: text hiển thị đủ lâu để đọc được
 
 #### Final Checklist (từ `required.txt` section 22)
-- [ ] 1. Living room 3D hiển thị
-- [ ] 2. Dad xuất hiện trong scene
-- [ ] 3. Dad có idle animation
-- [ ] 4. Dad có walk animation
-- [ ] 5. Dad có sit animation
-- [ ] 6. Dad đi được tới sofa
-- [ ] 7. Dad tự quay đúng hướng sofa
-- [ ] 8. Dad ngồi xuống
-- [ ] 9. Dad nhìn TV (lookAt)
-- [ ] 10. Dad thay đổi emotion
-- [ ] 11. Dad nói một câu
-- [ ] 12. Camera follow Dad
-- [ ] 13. Timeline điều khiển sequence
-- [ ] 14. UI hiển thị state hiện tại
-- [ ] 15. Buttons trigger behaviors
-- [ ] 16. Code chia module rõ ràng
-- [ ] 17. Không có logic quan trọng trong React UI
-- [ ] 18. Có thể thêm Mom mà không sửa engine
+- [x] 1. Living room 3D hiển thị
+- [x] 2. Dad xuất hiện trong scene
+- [x] 3. Dad có idle animation
+- [x] 4. Dad có walk animation
+- [x] 5. Dad có sit animation
+- [x] 6. Dad đi được tới sofa
+- [x] 7. Dad tự quay đúng hướng sofa
+- [x] 8. Dad ngồi xuống
+- [x] 9. Dad nhìn TV (lookAt)
+- [x] 10. Dad thay đổi emotion
+- [x] 11. Dad nói một câu
+- [x] 12. Camera follow Dad
+- [x] 13. Timeline điều khiển sequence
+- [x] 14. UI hiển thị state hiện tại
+- [x] 15. Buttons trigger behaviors
+- [x] 16. Code chia module rõ ràng
+- [x] 17. Không có logic quan trọng trong React UI
+- [x] 18. Có thể thêm Mom mà không sửa engine
 
 ### Definition of Done
 > ✅ Mở browser → Play → xem 25s scene chạy tự động. 18/18 checklist pass.

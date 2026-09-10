@@ -1,4 +1,4 @@
-﻿// ============================================================
+// ============================================================
 // characterStore — Zustand store bridging engine → React UI
 // Engine updates this store; React components subscribe to it
 // ============================================================
@@ -22,9 +22,11 @@ export interface CharacterStoreState {
   _actions: {
     walkToSofa: () => void;
     lookAtTV: () => void;
+    lookAtDoor: () => void;
     sit: () => void;
     stand: () => void;
     talk: (text: string) => void;
+    laugh: () => void;
     setEmotion: (emotion: EmotionType) => void;
     idle: () => void;
   } | null;

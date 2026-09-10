@@ -1,4 +1,4 @@
-﻿// ============================================================
+// ============================================================
 // ICharacterController — public API for any character
 // This is the ONLY interface AI Story Engine will call.
 // ============================================================
@@ -14,7 +14,7 @@ export interface ICharacterController {
   idle(): void;
   walkTo(target: THREE.Vector3 | THREE.Object3D): Promise<void>;
   lookAt(target: THREE.Vector3 | THREE.Object3D): Promise<void>;
-  sit(): Promise<void>;
+  sit(seatTarget?: THREE.Object3D): Promise<void>;
   stand(): Promise<void>;
   say(text: string): Promise<void>;
   laugh(): Promise<void>;

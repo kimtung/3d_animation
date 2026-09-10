@@ -89,8 +89,8 @@ export class CharacterController implements ICharacterController {
     await this.behaviorManager.execute(new LookAtBehavior(pos));
   }
 
-  async sit(): Promise<void> {
-    await this.behaviorManager.execute(new SitBehavior());
+  async sit(seatTarget?: THREE.Object3D): Promise<void> {
+    await this.behaviorManager.execute(new SitBehavior(seatTarget));
   }
 
   async stand(): Promise<void> {

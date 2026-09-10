@@ -90,9 +90,17 @@ export function Viewport() {
             const tv = sceneManager.getObject("tv");
             if (tv) dad.lookAt(tv);
           },
-          sit: () => dad.sit(),
+          lookAtDoor: () => {
+            const door = sceneManager.getObject("door_entrance");
+            if (door) dad.lookAt(door);
+          },
+          sit: () => {
+            const sofa = sceneManager.getObject("sofa");
+            dad.sit(sofa ?? undefined);
+          },
           stand: () => dad.stand(),
           talk: (text: string) => dad.say(text),
+          laugh: () => dad.laugh(),
           setEmotion: (emotion) => dad.setEmotion(emotion),
           idle: () => dad.idle(),
         },

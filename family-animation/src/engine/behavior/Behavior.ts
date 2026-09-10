@@ -1,9 +1,9 @@
-﻿import type { BehaviorState } from "@engine/character/CharacterState.ts";
+import type { BehaviorState } from "@engine/character/CharacterState.ts";
 import type { StateMachine } from "./StateMachine.ts";
 import type { AnimationController } from "@engine/animation/AnimationController.ts";
 import type { MotionController } from "@engine/movement/MotionController.ts";
 import type { EmotionController } from "@engine/emotion/EmotionController.ts";
-import type * as THREE from "three";
+import * as THREE from "three";
 
 export interface BehaviorContext {
   characterId: string;
@@ -82,14 +82,33 @@ export class LookAtBehavior implements Behavior {
   }
 
   async execute(ctx: BehaviorContext): Promise<void> {
-    // LookAt is parallel, does not force leave sitting/idle
-    await ctx.motionController.rotateTo(this.target);
+    // If character is sitting, look with head and spine rather than moving full body
+    if (ctx.stateMachine.getState() === "SITTING") {
+      const charPos = ctx.object3D.position;
+      const dir = this.target.clone().sub(charPos);
+      const angle = Math.atan2(dir.x, dir.z) - ctx.object3D.rotation.y;
+      const normalizedAngle = Math.atan2(Math.sin(angle), Math.cos(angle));
+
+      // Tilt head toward target
+      ctx.emotionController.setEmotion("neutral");
+      const head = ctx.object3D.getObjectByName("Head");
+      if (head) {
+        head.rotation.y = THREE.MathUtils.clamp(normalizedAngle * 0.8, -1.2, 1.2);
+      }
+    } else {
+      await ctx.motionController.rotateTo(this.target);
+    }
   }
 }
 
 export class SitBehavior implements Behavior {
   readonly id = "sit";
   readonly targetState: BehaviorState = "SITTING";
+  private targetObject?: THREE.Object3D;
+
+  constructor(targetObject?: THREE.Object3D) {
+    this.targetObject = targetObject;
+  }
 
   async execute(ctx: BehaviorContext): Promise<void> {
     if (!ctx.stateMachine.canTransition("SITTING")) {
@@ -97,10 +116,33 @@ export class SitBehavior implements Behavior {
       return;
     }
 
+    // Check if semantic seatAnchor exists on target object
+    const anchor = this.targetObject?.userData?.seatAnchor;
+    if (anchor) {
+      // 1. Move to entry position right in front of seat
+      const entryVec = new THREE.Vector3(
+        anchor.entryPosition.x,
+        anchor.entryPosition.y,
+        anchor.entryPosition.z
+      );
+      await ctx.motionController.moveTo(entryVec);
+
+      // 2. Rotate to face away from sofa (out towards room / TV)
+      await ctx.motionController.rotateToAngle(anchor.seatRotationY);
+
+      // 3. Step back into seat smoothly
+      const seatVec = new THREE.Vector3(
+        anchor.seatPosition.x,
+        anchor.seatPosition.y,
+        anchor.seatPosition.z
+      );
+      await ctx.motionController.moveTo(seatVec);
+    }
+
+    // 4. Trigger sit animation & transition state
     ctx.stateMachine.transition("SITTING");
     ctx.animationController.play("sit", { loop: false, clampWhenFinished: true });
-    // Wait for sit animation duration (~1s)
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 950));
   }
 }
 

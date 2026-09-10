@@ -1,4 +1,4 @@
-﻿// ============================================================
+// ============================================================
 // MotionController — handles 3D movement (position + rotation)
 // Deliberately separated from AnimationController
 // ============================================================
@@ -49,7 +49,21 @@ export class MotionController {
   rotateTo(targetPosition: THREE.Vector3): Promise<void> {
     return new Promise((resolve) => {
       const dir = targetPosition.clone().sub(this.object3D.position);
+      dir.y = 0;
+      if (dir.lengthSq() < 0.001) {
+        resolve();
+        return;
+      }
       this._targetRotation = Math.atan2(dir.x, dir.z);
+      this._isRotating = true;
+      this._rotateResolve = resolve;
+    });
+  }
+
+  /** Rotate directly to an absolute Y angle in radians. */
+  rotateToAngle(angleY: number): Promise<void> {
+    return new Promise((resolve) => {
+      this._targetRotation = angleY;
       this._isRotating = true;
       this._rotateResolve = resolve;
     });

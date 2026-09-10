@@ -1,13 +1,30 @@
-﻿import type { CharacterDefinition } from "@engine/character/CharacterDefinition.ts";
+import type { CharacterDefinition } from "@engine/character/CharacterDefinition.ts";
 
 export const dadDefinition: CharacterDefinition = {
   id: "dad",
   name: "Dad",
+  role: "Father",
   asset: "/assets/characters/dad/dad.glb",
 
   personality: {
-    traits: ["funny", "kind", "slightly_lazy", "easy_going", "avoids_conflict"],
+    traits: [
+      "funny",
+      "kind",
+      "relaxed",
+      "slightly_lazy",
+      "easy_going",
+      "avoids_conflict",
+      "playful",
+    ],
   },
+
+  appearance: {
+    bodyType: "adult_male_stylized",
+    ageGroup: "mid_40s",
+    clothing: ["blue_tshirt", "casual_slacks", "retro_glasses"],
+  },
+
+  defaultEmotion: "neutral",
 
   capabilities: ["walk", "sit", "stand", "look_at", "talk", "laugh", "idle"],
 

@@ -1,4 +1,4 @@
-﻿import type { TimelineEvent, StoryTimeline } from "./TimelineEvent.ts";
+import type { TimelineEvent, StoryTimeline } from "./TimelineEvent.ts";
 import type { ICharacterController } from "@engine/character/Character.ts";
 import type { CameraController } from "@engine/camera/CameraController.ts";
 import type { SceneManager } from "@engine/scene/SceneManager.ts";
@@ -158,7 +158,7 @@ export class Timeline {
         }
         break;
       case "sit":
-        await actor.sit();
+        await actor.sit(targetObj ?? undefined);
         break;
       case "stand":
         await actor.stand();
